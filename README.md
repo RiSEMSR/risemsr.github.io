@@ -1,6 +1,6 @@
 # risemsr.github.io
 
-This is the RISE MSR blog, built with Jekyll and hosted on GitHub Pages.
+This is the RiSE MSR blog, built with Jekyll and hosted on GitHub Pages.
 
 ## Building Locally
 

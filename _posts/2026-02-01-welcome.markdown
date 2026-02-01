@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Welcome to RISE MSR Blog"
+title:  "Welcome to RiSE MSR Blog"
 date:   2026-02-01 01:44:00 +0000
-author: RISE MSR Team
+author: RiSE MSR Team
 ---
 
-Welcome to the RISE MSR blog!
+Welcome to the RiSE MSR blog!

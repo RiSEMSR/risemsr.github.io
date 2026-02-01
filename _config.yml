@@ -13,11 +13,11 @@
 # you will see them accessed via {{ site.title }}, {{ site.email }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: RISE MSR
+title: RiSE MSR
 email: your-email@domain.com
 description: > # this means to ignore newlines until "baseurl:"
-  News from the RISE MSR team! This blog covers research, new developments,
-  technical discussions, and the work of the RISE MSR group.
+  News from the RiSE MSR team! This blog covers research, new developments,
+  technical discussions, and the work of the RiSE MSR group.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://risemsr.github.io" # the base hostname & protocol for your site
 github_username:  risemsr
