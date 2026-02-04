@@ -39,10 +39,60 @@ an exciting time, and we hope this will interest you to explore too, to try out
 our tools with agentic strategies that we haven't thought of yet, and to help us
 find what the limits are.
 
-I'll dive right in and provide some context as I go, but if you're not familar
-with proof-oriented programming and F\*, you might want to first read the brief
-background section at the end of this post.
+I'll dive right in and provide some context as I go, starting with a brief
+introduction to proof-oriented programming in F\*.
 
+## Background: Proof-oriented Programming
+
+If you know about F\* feel free to skip this section.
+
+F\* is a proof-oriented programming language. Within the same language, one
+writes executable programs backed by mathematical specifications and formal
+proofs, demonstrating that the programs meet their specifications. For just a
+quick taste, one might write a quicksort function on lists with the following
+specification and proof:
+
+```fstar
+let rec quicksort (l:list int)
+: Tot (m:list int { sorted m /\ permutation l m })
+      (decreases (length l)) =
+  match l with
+  | [] -> []
+  | pivot::rest ->
+      let less = filter (fun x -> x < pivot) rest in
+      let greater = filter (fun x -> x >= pivot) rest in
+      partition_lemma l pivot less greater; //call a supporting lemma
+      quicksort less @ (pivot :: quicksort greater)
+```
+
+This functions sorts a list of integers, and its type states that the result `m`
+is a sorted permutation of the input list `l`, and that the function always
+terminates. The code is decorated with various annotations to help F\* prove it
+correct, including the `decreases` clause to indicate why the recursion
+terminates, and a call to a supporting lemma `partition_lemma` that helps prove
+that the partitioning step is correct. For a summary of F\*, check out this
+chapter from the F\* tutorial: [A Capsule Summary of
+F\*](https://fstar-lang.org/tutorial/book/intro.html#introduction).
+
+As you can probably tell from this example, proof-oriented programming involves
+thinking deeply about the properties of programs, and then convincing the
+compiler (which internally uses another RiSE tool, the SMT solver
+[Z3](https://github.com/Z3Prover/z3)) that those properties hold through various
+proof hints.
+
+F\* supports a variety of programming paradigms, not just functional
+programming. For example, one can write imperative programs with shared-memory
+concurrency and prove them correct in Pulse, an embedded language in F\*. You
+can learn more about Pulse
+[here](https://fstar-lang.org/tutorial/book/pulse/pulse.html#pulse-proof-oriented-programming-in-concurrent-separation-logic).
+
+Programming in this way requires quite a bit of expertise, and it can be quite
+laborious to produce a large verified program, but it offers very strong
+assurances about your program. We have used F\* and related tools to build
+several large high-assurance systems and system components, many of which have
+been running for years in production systems at Microsoft, e.g., see [Project
+Everest](https://project-everest.github.io/). A question many people have been
+asking recently is whether or not AI can make proof-oriented programming easier.
 
 ## Setup
 
@@ -82,8 +132,13 @@ loop with an invariant in a style that was documented in an older version of the
 Pulse tutorial, but is no longer recommended. I can't confirm this, but perhaps
 the model had been trained on this older tutorial content. So, I augmented the
 prompt with one example of how to write a while loop with an idiomatic
-invariant. You might find this example useful too, if only to get a feeling of
-what Pulse code looks like:
+invariant.
+
+### A small example in Pulse, for the model & you
+
+Here's the example I added to the agent description to give the model some
+reference code using an idiomatic while loop in Pulse. You might find this
+example useful too, if only to get a feeling of what Pulse code looks like:
 
 ```pulse
 // Pure specification: what it means for an index to be the max position
@@ -136,6 +191,8 @@ which like in C are of type `SZ.t`, the type of machine-sized integers in Pulse.
 One has to decorate loops with invariants to convince the checker that the code
 is correct.
 
+### Back to Bubble Sort
+
 With this one example, I asked the agent to implement bubble sort on an array of
 integers and prove it correct. To my surprise, it produced a correct
 specification and implementation of bubble sort, around 200 lines of code, with
@@ -144,8 +201,27 @@ agent repeatedly invoked the Pulse verifier, fixed errors, and refined the proof
 until it was correct. The entire process took around 10 minutes. Once it was
 done, I asked it to generalize the code to use a typeclass for elements with a
 total order, rather than just integers, and this too it did very quickly. The
-result is available here:
-[PulseExample.BubbleSort](https://github.com/FStarLang/pulse/blob/5e02af0713aed5d96eeb1b0c62c33a13e0089d5f/share/pulse/examples/PulseExample.BubbleSort.fst).
+full result is available online,
+([PulseExample.BubbleSort](https://github.com/FStarLang/pulse/blob/5e02af0713aed5d96eeb1b0c62c33a13e0089d5f/share/pulse/examples/PulseExample.BubbleSort.fst)).
+but here's a snippet of the main specification: the main point to note is that
+the array contents at the end (`s`) is a sorted permutation of the initial
+contents (`s0`).
+
+```pulse
+// Generic bubble sort with complete formal specification and proof
+fn bubble_sort (#t:eqtype) {| total_order t |}
+  (a: array t) (#s0: Ghost.erased (Seq.seq t)) (len: SZ.t)
+requires A.pts_to a s0 ** pure (
+  SZ.v len == Seq.length s0 /\
+  Seq.length s0 <= A.length a /\
+  SZ.v len > 0
+)
+ensures exists* s. A.pts_to a s ** pure (
+  Seq.length s == Seq.length s0 /\
+  sorted s /\
+  permutation s0 s
+)
+```
 
 Of course, bubble sort is not necessarily the best sorting algorithm. I picked
 it because, as far as I know, there is no existing verified implementaton of
@@ -407,8 +483,8 @@ tools.
 If we truly are on a path where the mechanics of proof engineering is largely
 automated, what are some consequences?
 
-On the one hand, I feel emboldened to try to build verified systems at a much
-larger scale than previously. 
+On the one hand, I'm excited to try to build verified systems at a much larger
+scale than previously. 
 
 Conversely, I also wonder about how to ensure that agents do not diminish the
 pipeline of younger researchers and engineers learning how to do mechanized
@@ -424,53 +500,3 @@ Understanding how to weigh those costs when taking on large AI-enhanced projects
 is important, though I have nothing meaningful to say about that, at least not
 yet.
 
-## Brief Background: Proof-oriented Programming
-
-If you know about F\* feel free to skip this section.
-
-F\* is a proof-oriented programming language. Within the same language, one
-writes executable programs backed by mathematical specifications and formal
-proofs, demonstrating that the programs meet their specifications. For just a
-quick taste, one might write a quicksort function on lists with the following
-specification and proof:
-
-```fstar
-let rec quicksort (l:list int)
-: Tot (m:list int { sorted m /\ permutation l m })
-      (decreases (length l)) =
-  match l with
-  | [] -> []
-  | pivot::rest ->
-      let less = filter (fun x -> x < pivot) rest in
-      let greater = filter (fun x -> x >= pivot) rest in
-      partition_lemma l pivot less greater; //call a supporting lemma
-      quicksort less @ (pivot :: quicksort greater)
-```
-
-This functions sorts a list of integers, and its type states that the result `m`
-is a sorted permutation of the input list `l`, and that the function always
-terminates. The code is decorated with various annotations to help F\* prove it
-correct, including the `decreases` clause to indicate why the recursion
-terminates, and a call to a supporting lemma `partition_lemma` that helps prove
-that the partitioning step is correct. For a summary of F\*, check out this
-chapter from the F\* tutorial: [A Capsule Summary of
-F\*](https://fstar-lang.org/tutorial/book/intro.html#introduction).
-
-As you can probably tell from this example, proof-oriented programming involves
-thinking deeply about the properties of programs, and then convincing the
-compiler (which internally uses another RiSE tool, the SMT solver
-[Z3](https://github.com/Z3Prover/z3)) that those properties hold through various
-proof hints.
-
-F\* supports a variety of programming paradigms, not just functional
-programming. For example, one can write imperative programs with shared-memory
-concurrency and prove them correct in Pulse, an embedded language in F\*. You
-can learn more about Pulse
-[here](https://fstar-lang.org/tutorial/book/pulse/pulse.html#pulse-proof-oriented-programming-in-concurrent-separation-logic).
-
-Programming in this way requires quite a bit of expertise, and it can be quite
-laborious to produce a large verified program, but it offers very strong
-assurances about your program. We have used F\* and related tools to build
-several large high-assurance systems and system components, many of which have
-been running for years in production systems at Microsoft, e.g., see [Project
-Everest](https://project-everest.github.io/).
