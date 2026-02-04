@@ -7,13 +7,13 @@ author: Nik Swamy
 * Author: Nik Swamy, with thanks to Lef Ioannidis, Matthai Philipose, Alex
   Lavaee, Jana Kulkarni, and many others
  
-Can AI assist in the buliding programs with formal proofs of correctness? This
+Can AI assist in buliding programs with formal proofs of correctness? This
 past week, my experience using [Copilot
 CLI](https://github.com/features/copilot/cli) to build proofs of programs in
 [F\*](https://fstar-lang.org) and
 [Pulse](https://fstar-lang.org/tutorial/book/pulse/pulse.html) has been eye
 opening. We might be on the verge of Agentic PoP---AI-assisted proof-oriented
-programming, where the expert humans focus on specifications, high-level design,
+programming, where expert humans focus on specifications, high-level design,
 and a few key invariants, and AI agents take care of the mechanics of
 constructing formal proofs. 
 
