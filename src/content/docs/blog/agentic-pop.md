@@ -134,7 +134,7 @@ the model had been trained on this older tutorial content. So, I augmented the
 prompt with one example of how to write a while loop with an idiomatic
 invariant.
 
-### A small example in Pulse, for the model & you
+### A Small Example in Pulse, for the Model & You
 
 Here's the example I added to the agent description to give the model some
 reference code using an idiomatic while loop in Pulse. You might find this
@@ -228,7 +228,7 @@ it because, as far as I know, there is no existing verified implementaton of
 bubble sort in F\* or Pulse, so it was a good first test. In contrast, there are
 several implementations of quicksort, insertion sort, mergesort, etc.
 
-## Plan mode: Extend the Pulse Library
+## Plan Mode: Extend the Pulse Library
 
 Encouraged by the model's unexpected fluency in Pulse, I switch Copilot CLI to
 "plan mode", where you can ask the agents to plan for a more complex task. It
@@ -381,9 +381,12 @@ In other words, these agents are not an outright replacement for human
 expertise. Instead, they seem to accelerate expert humans. I would imagine that
 they also reduce the barrier to entry for less experienced users, e.g., one
 might get quite far just by being able to read and critique formal
-specifications, rather than needing to write such specifications and proofs.
+specifications, rather than needing to write such specifications and proofs. Put
+a different way, riffing on [Cory Doctorow's thought-provoking
+article](https://www.theguardian.com/us-news/ng-interactive/2026/jan/18/tech-ai-bubble-burst-reverse-centaur), 
+I still feel distinctly a centaur, not a reverse centaur.
 
-## Learning from examples: Counting Semaphore
+## Learning from Examples: Counting Semaphore
 
 As a last experiment, I wanted to see if the agent could learn from the
 reader-writer lock and apply similar ideas to implement a counting semaphore.
@@ -410,13 +413,13 @@ often, mechanized proof assistants feel like proof curmudgeons, requiring to
 convince the machine of every step. Being able to express intuition and
 high-level intent and for the proof assistant to complete the work is a dream. 
 
-## Questions, limitations, ... 
+## Questions, Limitations, ... 
 
 I hope I haven't been too effusive in my description of this experience. I have
 truly been amazed by my experience, but I also have many questions for what's
 ahead. First, let me be explicit about some limitations. 
 
-### Specifications are not absolute
+### Specifications are not Absolute
 
 Good specifications abstract important aspects of programs. For example, the
 specification of bubble sort only says that it returns a sorted permutation of
@@ -436,7 +439,7 @@ add. In contrast, pure functions in F\* are always proved terminating.
 All of which is to say that formal specifications and proofs help to *reduce*
 what a human needs to audit about the code, it does not eliminate it completely.
 
-### Executable programs and testing
+### Executable Programs and Testing
 
 Testing is an important part of the story. As Donald Knuth famously said,
 "Beware of bugs in the above code; I have only proved it correct, not tried it."
@@ -451,7 +454,7 @@ reliable OCaml, C, or Rust code? That is, have agents program in proof-oriented
 languages, where constructs are well-suited to formal proof, and then extract
 the verified code to other mainstream languages for integration and deployment.
 
-### What are the limits?
+### What are the Limits?
 
 This is the big question. Certainly, the tasks I set for the agents were
 non-trivial, but they were still at the scale of a single verified module at a
@@ -468,7 +471,7 @@ issue in mechanized proof---as tools and specifications evolve, the proofs need
 to adapt too. Early experiments suggest that agents can help with this
 too---more in a future post.
 
-### Learning from agents
+### Learning from Agents
 
 Agents seem to be fine working around the rough edges of F\* and Pulse. There's
 a lot to learn from agent traces. As I mention below, in producing these proofs,
@@ -478,7 +481,7 @@ fails to adapt to formal code, the error messages that the agent has to work
 hard to decipher---all of this and more could be a great way to improve the
 tools. 
 
-### Costs \& consequences?
+### Costs \& Consequences?
 
 If we truly are on a path where the mechanics of proof engineering is largely
 automated, what are some consequences?
