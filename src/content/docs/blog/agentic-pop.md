@@ -7,7 +7,7 @@ author: Nik Swamy
 * Author: Nik Swamy, with thanks to Lef Ioannidis, Matthai Philipose, Alex
   Lavaee, Jana Kulkarni, and many others
  
-Can AI assist in buliding programs with formal proofs of correctness? This
+Can AI assist in building programs with formal proofs of correctness? This
 past week, my experience using [Copilot
 CLI](https://github.com/features/copilot/cli) to build proofs of programs in
 [F\*](https://fstar-lang.org) and
