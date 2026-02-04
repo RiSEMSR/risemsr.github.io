@@ -8,7 +8,7 @@ author: Nik Swamy
   Lavaee, Jana Kulkarni, and many others
  
 Can AI assist in building programs with formal proofs of correctness? Researchers in
-MSR and else have been working on this research goal for a few years
+MSR and elsewhere have been working on this research goal for a few years
 ([1](https://arxiv.org/abs/2405.01787), [2](https://arxiv.org/abs/2404.10362),
 [3](https://sites.google.com/view/autoverus), ...), but my recent experience
 using [Copilot CLI](https://github.com/features/copilot/cli) to develop programs with proofs in [F\*](https://fstar-lang.org) and
@@ -419,18 +419,27 @@ I hope I haven't been too effusive in my description of this experience. I have
 truly been amazed by my experience, but I also have many questions for what's
 ahead. First, let me be explicit about some limitations. 
 
-### Specifications are not Absolute
+### Specifications are not Omnipotent
 
 Good specifications abstract important aspects of programs. For example, the
 specification of bubble sort only says that it returns a sorted permutation of
 the input. The specification does not say that the algorithm implemented is
-really bubble sort, e.g., insertion sort would also have the same specification.
+really bubble sort, e.g., insertion sort and merge sort also have the same specification.
 
-The functional specifications one proves in F\* and Pulse usually do not cover
+Functional specifications in F\* and Pulse usually do not cover
 aspects related to complexity and resource usage, much less concrete performance
-aspects.
+aspects. Specifications do not account for underlying assumptions about the runtime,
+operating system, and hardware stack, on top of which we execute programs.
+As Donald Knuth famously said, "Beware of bugs in the above code; I have
+only proved it correct, not tried it." 
 
-In Pulse, a major limitation is that the language currently supports only
+Dynamic approaches to software assurance, like testing, fuzzing and profiling 
+are still necessary to complete the picture. Verified Pulse programs can be 
+*extracted* to OCaml, C, or Rust for execution. The agents appear perfectly
+capable of wielding F\*'s compilation toolchain to produce such executable code
+and testing it---but I'll leave writing about that for the future.
+
+Finally, a major limitation of Pulse is that the language currently supports only
 *partial* correctness proofs, meaning a verified program can loop forever. We
 are working to improve this, allowing proofs of termination in Pulse, though
 some properties like liveness proofs for concurrent programs will be harder to
@@ -438,24 +447,6 @@ add. In contrast, pure functions in F\* are always proved terminating.
 
 All of which is to say that formal specifications and proofs help to *reduce*
 what a human needs to audit about the code, it does not eliminate it completely.
-
-### Executable Programs and Testing
-<lef: this is too diplomatic and takes away from the excitement of the rest of the post.
-I agree with Knuth, but he was doing proofs by hand! There is a time and place to be diplomatic with
-our testing friends, and this post is not it!>
-
-Testing is an important part of the story. As Donald Knuth famously said,
-"Beware of bugs in the above code; I have only proved it correct, not tried it."
-
-Verified Pulse programs can be *extracted* to OCaml, C, or Rust for execution.
-The agents appear perfectly capable of wielding F\*'s compilation toolchain to
-produce such executable code and testing it---but I'll leave writing about that
-for the future.
-
-It does raise the question: could this be a more effective way of producing
-reliable OCaml, C, or Rust code? That is, have agents program in proof-oriented
-languages, where constructs are well-suited to formal proof, and then extract
-the verified code to other mainstream languages for integration and deployment.
 
 ### What are the Limits?
 
