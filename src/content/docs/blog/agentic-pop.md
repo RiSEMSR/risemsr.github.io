@@ -234,10 +234,10 @@ natural language, e.g.,
 This helped, but the agent still struggled to get the proof correct. I tried more
 detailed technical guidance in natural language:
 
-> Your invariant and ghost state construction is not strong enough. Consider the following: in your ghost state, maintain a map `reader_perms` from `nat -\> option perm`. `reader_perms i = Some f` means that reader i holds `f` fraction. Maintain an invariant that says that if the current counter = n, where n is not a sentinel, then there are exactly n positions at which reader_perms is Some _. Also maintain a ghost freshness counter, above which reader_perms is always None. Then the sum of all the permissions in the reader_perms  to the freshness counter is the total permission handed out to readers and the lock holds 1 - this total amount. This way, then the counter is 0, you know the lock holds full permission. When a reader acquires, increment the freshness counter, associate that fresh position with the reader token, and record that fraction given to the reader (half the current amount) in the map. When the reader releases, clear that entry in the map, decrement the counter, and add the fraction stored at that point back to the amount held by the lock. Ask any clarifying questions, make a plan, and then implement it without any admits!
+> Your invariant and ghost state construction is not strong enough. Consider the following: in your ghost state, maintain a map `reader_perms` from `nat -> option perm`. `reader_perms i = Some f` means that reader i holds `f` fraction. Maintain an invariant that says that if the current counter = n, where n is not a sentinel, then there are exactly n positions at which reader_perms is Some _. Also maintain a ghost freshness counter, above which reader_perms is always None. Then the sum of all the permissions in the reader_perms  to the freshness counter is the total permission handed out to readers and the lock holds 1 - this total amount. This way, then the counter is 0, you know the lock holds full permission. When a reader acquires, increment the freshness counter, associate that fresh position with the reader token, and record that fraction given to the reader (half the current amount) in the map. When the reader releases, clear that entry in the map, decrement the counter, and add the fraction stored at that point back to the amount held by the lock. Ask any clarifying questions, make a plan, and then implement it without any admits!
 
-But this didn't produce a fully correct proof either. Frankly, I found it
-awkward to describe technical invariants in natural language, it's just not
+But this didn't produce a fully correct proof either. To be honest, I found it
+awkward to describe technical invariants in natural language---it's just not
 precise enough. And, in fact, my guidance was not quite right either, as I
 realized later.
 
@@ -322,14 +322,14 @@ invariant, but I did not need to drop down and write a formal invariant myself.
 
 An interesting anecdote: once the proof was complete, I noticed that the code
 had a needless dynamic check for an overflow when releasing a permit, decorated
-with a comment saying that this couldn't happen at runtime but that the agent
+with a comment saying that this couldn't happen at runtime though the agent
 could not prove it. I asked the agent to remove this check, explaining that the
 overflow is impossible because when a permit is held, the counter value is
 strictly less than maximum bound, meaning an increment of the counter is safe.
 That was enough for it to refactor the proof, removing the check and completing
 the proof correctly.
 
-Again, this level of interaction with a proof assistant is unheard of to me. Too
+Again, this level of interaction with a proof assistant is unheard of. Too
 often, mechanized proof assistants feel like proof curmudgeons, requiring to
 convince the machine of every step. Being able to express intuition and
 high-level intent and for the proof assistant to complete the work is a dream. 
@@ -342,7 +342,7 @@ ahead. First, let me be explicit about some limitations.
 
 ### Specifications are not absolute
 
-Good specifications abstract important aspects of the program. For example, the
+Good specifications abstract important aspects of programs. For example, the
 specification of bubble sort only says that it returns a sorted permutation of
 the input. The specification does not say that the algorithm implemented is
 really bubble sort, e.g., insertion sort would also have the same specification.
@@ -355,7 +355,7 @@ In Pulse, a major limitation is that the language currently supports only
 *partial* correctness proofs, meaning a verified program can loop forever. We
 are working to improve this, allowing proofs of termination in Pulse, though
 some properties like liveness proofs for concurrent programs will be harder to
-add.
+add. In contrast, pure functions in F\* are always proved terminating.
 
 All of which is to say that formal specifications and proofs help to *reduce*
 what a human needs to audit about the code, it does not eliminate it completely.
@@ -371,7 +371,7 @@ produce such executable code and testing it---but I'll leave writing about that
 for the future.
 
 It does raise the question: could this be a more effective way of producing
-reliable OCaml, C, or Rust code? Have agents program in proof-oriented
+reliable OCaml, C, or Rust code? That is, have agents program in proof-oriented
 languages, where constructs are well-suited to formal proof, and then extract
 the verified code to other mainstream languages for integration and deployment.
 
@@ -397,7 +397,7 @@ too---more in a future post.
 Agents seem to be fine working around the rough edges of F\* and Pulse. There's
 a lot to learn from agent traces. As I mention below, in producing these proofs,
 the agents called the F\* verifier thousands of times. Mining those traces,
-noting the kinds of errors produced, the reasoning steps the agent tries and but
+noting the kinds of errors produced, the reasoning steps the agent tries and 
 fails to adapt to formal code, the error messages that the agent has to work
 hard to decipher---all of this and more could be a great way to improve the
 tools. 
