@@ -7,30 +7,33 @@ author: Nik Swamy
 * Author: Nik Swamy, with thanks to Lef Ioannidis, Matthai Philipose, Alex
   Lavaee, Jana Kulkarni, and many others
  
-Can AI assist in building programs with formal proofs of correctness? This
-past week, my experience using [Copilot
-CLI](https://github.com/features/copilot/cli) to build proofs of programs in
-[F\*](https://fstar-lang.org) and
+Can AI assist in building programs with formal proofs of correctness? We've been
+pursuing this research direction for a few years now
+([1](https://arxiv.org/abs/2405.01787), [2](https://arxiv.org/abs/2404.10362),
+[3](https://sites.google.com/view/autoverus), ...), but my recent experience
+using [Copilot CLI](https://github.com/features/copilot/cli) to build proofs of
+programs in [F\*](https://fstar-lang.org) and
 [Pulse](https://fstar-lang.org/tutorial/book/pulse/pulse.html) has been eye
 opening. We might be on the verge of Agentic PoP---AI-assisted proof-oriented
-programming, where expert humans focus on specifications, high-level design,
-and a few key invariants, and AI agents take care of the mechanics of
-constructing formal proofs. 
+programming, where expert humans focus on specifications, high-level design, and
+a few key invariants, and AI agents take care of the mechanics of constructing
+formal proofs. 
 
 This could vastly expand the scope of proof-oriented programming: could it be
 possible to tackle significantly larger verified systems with small teams of
-experts to review specifications and orchestrate many PoP agents? I'm more
-much more optimistic about this than I was even just a week ago!
+experts to review specifications and orchestrate many PoP agents? I'm much more
+optimistic about this than I was even just a week ago!
 
 In short: using Copilot CLI and Claude Opus 4.5, I was able to produce formally
-verified, imperative libraries in Pulse, starting with simple things like a
-bubble sort on arrays and a ring buffer, but also a priority queue, an iterator
-library for linked lists, a hashtable with chained buckets, and even concurrency
-control primitives like a reader-writer lock and a counting semaphore. This is a
-total of about 10,000 lines of verified code and proof, something that would
-have probably taken me some weeks of focused work to produce. The resulting code
-has been committed to the Pulse repository in a series of pull requests---backed
-by formal proof, this type of code is much easier to review and commit.
+verified, imperative, concurrent libraries in Pulse, starting with simple things
+like a bubble sort on arrays and a ring buffer, but also a priority queue, an
+iterator library for linked lists, a hashtable with chained buckets, and even
+concurrency control primitives like a reader-writer lock and a counting
+semaphore. This is a total of about 10,000 lines of verified code and proof,
+something that would have probably taken me some weeks of focused work to
+produce. The resulting code has been committed to the Pulse repository in a
+series of pull requests---backed by formal proof, this type of code is much
+easier to review and commit.
 
 This is the first in a series of posts on this blog exploring the use of AI to
 construct provably correct programs. Many of us in RiSE are exploring this
