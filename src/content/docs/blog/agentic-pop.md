@@ -117,8 +117,7 @@ ensures pure (SZ.v result < Seq.length 's /\ is_max_position 's (SZ.v result))
   }
 ```
 
-The `#lang-pulse` directive at the top indicates that this is Pulse code. The
-function `max_position` takes a mutable array `a` of integers and its length
+The function `max_position` takes a mutable array `a` of integers and its length
 `len`, along with some ghost parameters for permissions and the abstract
 sequence `s` that `a` represents. The preconditions state that `a` points to the
 sequence `s` with some fractional permission `p`, and that `len` matches the
