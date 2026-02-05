@@ -384,7 +384,7 @@ might get quite far just by being able to read and critique formal
 specifications, rather than needing to write such specifications and proofs. Put
 a different way, riffing on [Cory Doctorow's thought-provoking
 article](https://www.theguardian.com/us-news/ng-interactive/2026/jan/18/tech-ai-bubble-burst-reverse-centaur), 
-I still feel distinctly a centaur, not a reverse centaur.
+I still feel distinctly like a centaur.
 
 ## Learning from Examples: Counting Semaphore
 
@@ -419,7 +419,7 @@ I hope I haven't been too effusive in my description of this experience. I have
 truly been amazed by my experience, but I also have many questions for what's
 ahead. First, let me be explicit about some limitations. 
 
-### Specifications are not Omnipotent
+### Specifications Abstract Programs
 
 Good specifications abstract important aspects of programs. For example, the
 specification of bubble sort only says that it returns a sorted permutation of
@@ -433,7 +433,7 @@ operating system, and hardware stack, on top of which we execute programs.
 As Donald Knuth famously said, "Beware of bugs in the above code; I have
 only proved it correct, not tried it." 
 
-Dynamic approaches to software assurance, like testing, fuzzing and profiling 
+Dynamic approaches to software assurance, like testing and profiling 
 are still necessary to complete the picture. Verified Pulse programs can be 
 *extracted* to OCaml, C, or Rust for execution. The agents appear perfectly
 capable of wielding F\*'s compilation toolchain to produce such executable code
@@ -448,17 +448,30 @@ add. In contrast, pure functions in F\* are always proved terminating.
 All of which is to say that formal specifications and proofs help to *reduce*
 what a human needs to audit about the code, it does not eliminate it completely.
 
+### Trust in the Verifier
+
+AIs could actively seek to exploit unsoundness bugs or escape hatches in the
+verifier. In fact, as you could probably tell from some of my interactions with
+the model shown above, I had to repeatedly tell it to not use "admits", i.e., an
+escape hatch telling F\* to accept an incomplete proof. The agents otherwise
+seemed to give up on a problem too easily. F\* includes flags to disallow admits
+(e.g., `--report_assumes error`), and its important to have this enabled for a
+final check of the result. That said, an AI could actively seek to find as yet
+unknown flaws in the verification tools.
+
 ### What are the Limits?
 
-This is the big question. Certainly, the tasks I set for the agents were
-non-trivial, but they were still at the scale of a single verified module at a
-time. How far can this be pushed? Can an agent decompose an application into a
-hierarchy of composable, verified modules? We have some experiments with that to
-report on in a future post. 
-
-Along another dimension, what is the barrier to entry for non-experts? Could
+This is the big question: I was able to drive these agents to write proofs. But,
+what is the barrier to entry for non-experts? As I mentioned earlier, it's
+important to at least be able to read and critique specifications. Could
 someone who is not an author of F\* and Pulse use this approach to build a
-non-trivial verified system?
+non-trivial verified system? We have some initial experience with that for a
+future post.
+
+Also, although the tasks I set for the agents were non-trivial, they were still
+at the scale of a single verified module at a time. How far can this be pushed?
+Can an agent decompose an application into a hierarchy of composable, verified
+modules? We have some experiments with that to report on in a future post. 
 
 What else can we use agentic proof engineers for? Proof maintenance is a big
 issue in mechanized proof---as tools and specifications evolve, the proofs need
@@ -475,7 +488,20 @@ fails to adapt to formal code, the error messages that the agent has to work
 hard to decipher---all of this and more could be a great way to improve the
 tools. 
 
-### Costs \& Consequences?
+### What's Changed?
+
+Has there been a leap in capabilities? I'm not entirely sure, but it seems to be
+that tool-using reasoning models have become very good, and Copilot CLI makes it
+easy to set up an environment exposing tools to models. Copilot CLI + Opus is
+not necessarily a uniquely capable combination. I also managed to program in
+Pulse with other models, e.g., GPT-5.2 Codex
+([PR](https://github.com/FStarLang/pulse/pull/542)).
+
+I also think the regime of having a verification tool provide objective feedback
+is ideally suited to agentic programming. The agent can try out proofs,
+immediately see what fails, and refine its approach.
+
+### Costs \& Consequences
 
 If we truly are on a path where the mechanics of proof engineering is largely
 automated, what are some consequences?
@@ -486,14 +512,13 @@ scale than previously.
 Conversely, I also wonder about how to ensure that agents do not diminish the
 pipeline of younger researchers and engineers learning how to do mechanized
 proofs. Is it possible to learn high-level proof-oriented architecture without
-ever wrestling with a proof? I don't know.
+ever having wrestled with a proof? I don't know.
 
-This code was produced over the course of a single 67 hour session with Copilot
-CLI and Claude Opus 4.5. Of course, the session was not continuously active, but
-it did involve around 6M input tokens, 2M output tokens, and around 4,300 tool
-invocations. The total cost for that ranges between $120--$200, depending on
-caching efficiency. There are also environmental and other costs to consider.
-Understanding how to weigh those costs when taking on large AI-enhanced projects
-is important, though I have nothing meaningful to say about that, at least not
-yet.
+This code was produced over the course of a single 67 hour session. Of course,
+the session was not continuously active, but it did involve around 6M input
+tokens, 2M output tokens, and around 4,300 tool invocations. The total cost for
+that ranges between $120--$200, depending on caching efficiency. There are also
+environmental and other costs to consider. Understanding how to weigh those
+costs when taking on large AI-enhanced projects is important, though I have
+nothing meaningful to say about that, at least not yet.
 
