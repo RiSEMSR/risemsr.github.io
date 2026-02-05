@@ -1,0 +1,164 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Pulse",
+  "patterns": [
+    {
+      "include": "#pulse"
+    }
+  ],
+  "repository": {
+    "pulse-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.pulse",
+          "match": "\\b(fn|mut|invariant|while|parallel|each|rewrite|fold|unfold|atomic|ghost|with_invariants|opens|show_proof_state|preserves|unobservable|requires|ensures|returns|exists|forall|pure|emp|let|if|else|match|with|assert|assume|drop|intro|elim|trade)\\b"
+        },
+        {
+          "name": "keyword.other.pulse",
+          "match": "#lang-pulse"
+        }
+      ]
+    },
+    "fstar-keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.fstar",
+          "match": "\\b(attributes|noeq|unopteq|and|assert|begin|by|calc|class|default|decreases|effect|eliminate|else|end|ensures|exception|exists|false|friend|forall|fun|function|if|in|include|inline|inline_for_extraction|instance|introduce|irreducible|let|logic|match|returns|as|module|new|new_effect|layered_effect|polymonadic_bind|polymonadic_subcomp|noextract|of|open|opaque|private|quote|range_of|rec|reifiable|reify|reflectable|requires|set_range_of|sub_effect|synth|then|total|true|try|type|unfold|unfoldable|val|when|with)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.pulse",
+          "match": "\\b(int|nat|bool|unit|string|list|option|Type|Tot|GTot|Lemma|Pure|ST|Div|Exn|All|perm|slprop|erased|prop|array|ref|seq|set|SZ\\.t|U32\\.t|U64\\.t|I32\\.t|Frac|box|ringbuffer|rwlock)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.pulse",
+          "match": "(\\|->|==|==>|<==|<=>|/\\\\|\\\\/|\\*\\*|->|<-|:=|\\|\\||&&|>=|<=|<>|!=|\\+\\.|\\-\\.|\\*\\.|>\\.|<\\.)"
+        }
+      ]
+    },
+    "strings": {
+      "name": "string.quoted.double.pulse",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.pulse",
+          "match": "\\\\."
+        }
+      ]
+    },
+    "characters": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.pulse",
+          "match": "'[^\\\\]'"
+        },
+        {
+          "name": "string.quoted.single.pulse",
+          "match": "'\\\\[nrt\\\\'\"0]'"
+        }
+      ]
+    },
+    "typevars": {
+      "patterns": [
+        {
+          "name": "variable.other.typevar.pulse",
+          "match": "'[a-z_][a-zA-Z0-9_]*"
+        }
+      ]
+    },
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.pulse",
+          "match": "//.*"
+        },
+        {
+          "include": "#commentblock"
+        }
+      ]
+    },
+    "escapehatch": {
+      "patterns": [
+        {
+          "name": "invalid.illegal.pulse",
+          "match": "\\b(admit|assume|magic|unsafe_coerce|assume_)\\b"
+        }
+      ]
+    },
+    "commentblock": {
+      "patterns": [
+        {
+          "name": "comment.block.pulse",
+          "begin": "\\(\\*",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.begin.pulse"
+            }
+          },
+          "end": "\\*\\)",
+          "endCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.end.pulse"
+            }
+          },
+          "patterns": [
+            {
+              "include": "#commentblock"
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.pulse",
+          "match": "\\b(0x[0-9a-fA-F]+|[0-9]+(\\.[0-9]+)?)(sz|ul|uL|us|uy|l|L|s|y|R)?\\b"
+        }
+      ]
+    },
+    "pulse": {
+      "patterns": [
+        {
+          "include": "#pulse-keywords"
+        },
+        {
+          "include": "#fstar-keywords"
+        },
+        {
+          "include": "#types"
+        },
+        {
+          "include": "#operators"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "include": "#characters"
+        },
+        {
+          "include": "#typevars"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#escapehatch"
+        },
+        {
+          "include": "#comments"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.pulse"
+}
