@@ -123,7 +123,9 @@ Ideas were encoded in analyzers:
 - barrier template synthesis,
 - dynamic symbolic/concolic validation.
 
+<!---
 ![Symbolic execution and taint tracking](assets/presentation-pngs/slide-03.png)
+--->
 
 ### 3) Testing
 
@@ -184,7 +186,9 @@ The same pattern repeated for unknown library calls:
 - fully nondeterministic assumptions were noisy,
 - contract-overapproximation + concolic witness checks gave a workable middle.
 
+<!---
 ![Symbolic vs concolic roles](assets/presentation-pngs/slide-04.png)
+--->
    
 ## Back-in-time detective board: where did these ideas come from?
 
@@ -207,7 +211,9 @@ By the time this became a pip package, the architecture had hardened into a simp
 - put deterministic, auditable, non-LLM reasoning first,
 - reserve LLM judgment for the residual uncertainty.
 
+<!---
 ![Layer feedback architecture](assets/presentation-pngs/slide-11.png)
+--->
 
 ### Static-first stage
 
@@ -221,7 +227,9 @@ The static stage does the heavy lifting:
 
 This is where most noise disappears.
 
+<!---
 ![Bug taxonomy coverage](assets/presentation-pngs/slide-05.png)
+--->
 
 ### The kitchensink approach: steal the best ideas, orchestrate them, don't worship any single paper
 
@@ -247,7 +255,9 @@ Concretely, that means combining and sequencing results from:
 
 That is the kitchensink point: treat great papers as interoperable components in a verification control loop, not as mutually exclusive camps.
 
+<!---
 ![Barrier synthesis advanced techniques](assets/presentation-pngs/slide-10.png)
+--->
 
 ### Agentic-second stage
 
@@ -271,9 +281,11 @@ A practical design choice made this deployable in messy repos: baseline ratcheti
 
 That shifts the team experience from "infinite backlog" to "no net new risk," which is the only sustainable adoption model for large existing codebases.
 
+<!---
 ![Case study: DeepSpeed](assets/presentation-pngs/slide-12.png)
 
 ![Real bugs found example](assets/presentation-pngs/slide-13.png)
+--->
 
 ## Why this architecture specifically fights slop
 
