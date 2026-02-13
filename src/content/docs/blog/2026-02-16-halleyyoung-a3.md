@@ -29,9 +29,7 @@ The earliest phase produced a long, ambitious manuscript on quantitative model c
 
 In other words, make verification feel less like a courtroom verdict and more like geometry.
 
-<!---
-![Presentation cover](assets/presentation-pngs/slide-01.png)
---->
+![Presentation cover](../../../assets/slop-feedback-loop/title-cover.png)
 
 The paper-level ideas were ambitious enough to be interesting and dangerous enough to be wrong in many ways once code entered the room. That tension is the whole story.
 
@@ -73,11 +71,9 @@ You can read it as: construct a mathematical fence `B(x)` so that
 
 That sounds abstract until it gets wired into a concrete analysis stack.
 
-<!---
-![Barrier intuition](assets/presentation-pngs/slide-08.png)
+![Barrier intuition](../../../assets/slop-feedback-loop/barrier-theory-visual-explanation.png)
 
-![System architecture overview](assets/presentation-pngs/slide-02.png)
---->
+![System architecture overview](../../../assets/slop-feedback-loop/system-architecture-overview.png)
 
 Once attached to symbolic execution, SMT feasibility checks, and refinement loops, barrier reasoning stops being decorative math and becomes a high-throughput false-positive filter.
 
@@ -123,9 +119,7 @@ Ideas were encoded in analyzers:
 - barrier template synthesis,
 - dynamic symbolic/concolic validation.
 
-<!---
-![Symbolic execution and taint tracking](assets/presentation-pngs/slide-03.png)
---->
+![Symbolic execution and taint tracking](../../../assets/slop-feedback-loop/symbolic-execution-taint-tracking.png)
 
 ### 3) Testing
 
@@ -158,9 +152,7 @@ This was the underappreciated step. Instead of forcing code to match a brittle t
 
 Then the loop restarted.
 
-<!---
-![Analysis workflow](assets/presentation-pngs/slide-06.png)
---->
+![Analysis workflow](../../../assets/slop-feedback-loop/analysis-workflow.png)
 
 This is "fighting AI slop with AI slop" in practice: generate aggressively, then subject everything to adversarial execution.
 
@@ -186,9 +178,7 @@ The same pattern repeated for unknown library calls:
 - fully nondeterministic assumptions were noisy,
 - contract-overapproximation + concolic witness checks gave a workable middle.
 
-<!---
-![Symbolic vs concolic roles](assets/presentation-pngs/slide-04.png)
---->
+![Symbolic vs concolic roles](../../../assets/slop-feedback-loop/symbolic-vs-concolic-roles.png)
    
 ## Back-in-time detective board: where did these ideas come from?
 
@@ -211,9 +201,7 @@ By the time this became a pip package, the architecture had hardened into a simp
 - put deterministic, auditable, non-LLM reasoning first,
 - reserve LLM judgment for the residual uncertainty.
 
-<!---
-![Layer feedback architecture](assets/presentation-pngs/slide-11.png)
---->
+![Layer feedback architecture](../../../assets/slop-feedback-loop/layer-feedback-architecture.png)
 
 ### Static-first stage
 
@@ -227,9 +215,7 @@ The static stage does the heavy lifting:
 
 This is where most noise disappears.
 
-<!---
-![Bug taxonomy coverage](assets/presentation-pngs/slide-05.png)
---->
+![Bug taxonomy coverage](../../../assets/slop-feedback-loop/bug-taxonomy-67-types.png)
 
 ### The kitchensink approach: steal the best ideas, orchestrate them, don't worship any single paper
 
@@ -255,9 +241,7 @@ Concretely, that means combining and sequencing results from:
 
 That is the kitchensink point: treat great papers as interoperable components in a verification control loop, not as mutually exclusive camps.
 
-<!---
-![Barrier synthesis advanced techniques](assets/presentation-pngs/slide-10.png)
---->
+![Barrier synthesis advanced techniques](../../../assets/slop-feedback-loop/barrier-synthesis-advanced-techniques.png)
 
 ### Agentic-second stage
 
@@ -281,11 +265,9 @@ A practical design choice made this deployable in messy repos: baseline ratcheti
 
 That shifts the team experience from "infinite backlog" to "no net new risk," which is the only sustainable adoption model for large existing codebases.
 
-<!---
-![Case study: DeepSpeed](assets/presentation-pngs/slide-12.png)
+![Case study: DeepSpeed](../../../assets/slop-feedback-loop/deepspeed-case-study.png)
 
-![Real bugs found example](assets/presentation-pngs/slide-13.png)
---->
+![Real bugs found example](../../../assets/slop-feedback-loop/deepspeed-real-bugs.png)
 
 ## Why this architecture specifically fights slop
 
