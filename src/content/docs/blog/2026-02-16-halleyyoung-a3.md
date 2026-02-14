@@ -22,6 +22,11 @@ and import mathematical libraries for reasoning about PyTorch code. **NSB: revis
 The a3-python system is now [available](https://pypi.org/project/a3-python)
 for you to give a spin.
 
+## A3-python
+
+__NSB: a section here that uses a3-python on an example: tell the reader what to expect before going through the process of getting there.
+Include information about how it is auto-generated and iterated.__
+
 ## Querying for confluences
 
 __NSB: we might need to invert the theory pitch to later to get to the usability sooner__
@@ -73,14 +78,41 @@ to present results as its own inventions, we could send the 85 page document to 
 20 years ago for cyber physical systems [PennSUPaper] and perhaps a thread of approaches used for synthesizing invariants from Farkas lemma [GulwaniVenkie].
 
 
+## From Math to Code
+
+__NSB: Describe the initial system__
+
+One thing is creating documents with suave looking scientific definitions and propositions, another is synthesizing code.
+Thankfully, the documents provide a great compass for agents to plan implementations. We still need an implementation plan.
+We asked Copilot to synthesize a script to call Copilot in a loop, bootstrapping an implementation 
+
+
+> Combine model-checker-plan with a desire to create a continuous copilot-cli workflow, by in a scheduled and structured way calling f"copilot -p '{prompt}' --allow-all-tools", with different prompts depending on where you are in the process.  First flesh out the plan for the continual process, then write it as a .py using that call_copilot script.   Note that unless told otherwise, copilot's cli will create files itself, not return text of files.
+> Note that part of the loop *has* to be downloading a large collection of rust repos, and iteratively debugging for false negatives by having an LLM come up with a hard-to-spot bug of type n and having the model detect it, and debugging for all false positives by running the checker on all rut files in the entire set of repos, seeing where it finds a positive, and asking copilot-cli if it agrees that it's a positive.   Then it should iterate on its results, using barrier certificate theory where it can be helpful, and developing in other ways as well.  The first part, though, should be developing a list of "moving parts" necessary, and iteratively building and then testing each moving part.  Note that the implementation should be in python.
+> This should consist of a .py python file which enacts this workflow.
+`
+
+
 ![System architecture overview](../../../assets/slop-feedback-loop/system-architecture-overview.png)
 
 Once attached to symbolic execution, SMT feasibility checks, and refinement loops, barrier reasoning stops being decorative math and becomes a high-throughput false-positive filter.
 
-## An Initial System
+The third era was the hardest: making the theory survive Python exactly enough to matter.
 
+That meant committing to execution details instead of hand-wavy semantics:
 
-__Describe the initial system__
+- bytecode-level control flow,
+- normal and exceptional edges,
+- frame/stack state,
+- dynamic dispatch,
+- unknown library behavior,
+- and explicit unsafe predicates for real bug classes.
+
+This is where lots of elegant claims died. Good. They needed to.
+
+The theory was then rewritten to reflect executable reality: safety as reachability
+exclusion over an explicit transition system, with contracts for unknown calls and concolic checks as refinement evidence.
+
 
 ## The Compute Aided Verification kitchen sink
 
@@ -109,34 +141,6 @@ __NSB: symbolo-neural__: symbolic verifier which is deterministic, auditable, an
 
 **Deliverable first:** `pip install a3-python` gives you a package that automatically discovers bug candidates, filters out as many as possible with static analysis, and then asks an LLM to make the final call only on a much smaller uncertain set.
 
-That is the ending. Now for the weird beginning.
-
-
-
-
-That witness is the barrier-certificate idea.
-
-You can read it as: construct a mathematical fence `B(x)` so that
-
-
-
-## Episode III: the Python reality era
-
-The third era was the hardest: making the theory survive Python exactly enough to matter.
-
-That meant committing to execution details instead of hand-wavy semantics:
-
-- bytecode-level control flow,
-- normal and exceptional edges,
-- frame/stack state,
-- dynamic dispatch,
-- unknown library behavior,
-- and explicit unsafe predicates for real bug classes.
-
-This is where lots of elegant claims died. Good. They needed to.
-
-The theory was then rewritten to reflect executable reality: safety as reachability
-exclusion over an explicit transition system, with contracts for unknown calls and concolic checks as refinement evidence.
 
 ## The actual engine: AI theorizing -> coding -> testing -> fixing code -> fixing theory
 
