@@ -1,8 +1,10 @@
 ---
 title: How to train your symbolic program verifier
 description: Development of a symbolic program analysis engine from prompts to functioning system
-author: Halley Young
+author: Halley Young and Nikolaj Bj&oslash;rner
 ---
+
+![Robot mascot](../../../assets/slop-feedback-loop/robot_cute.png)
 
 * Author: Halley Young, Nikolaj Bj&oslash;rner
 
@@ -18,7 +20,7 @@ What if you asked your favorite AI agent:
 Our journey creating the __a3__ framework, a system for generating Advanced Automated Analysis engines and so far extracted
 static verifiers for Rust and Python. In the process of creating a3-python we used AI to (re)discover a
 foundation based on Hilbert's Stellensatz theorems for program analysis, integrate a top dozen advances in symbolic model checking, 
-and import mathematical libraries for reasoning about PyTorch code. **NSB: revisit to make sure the right elements are summarized**
+and create contracts for reasoning about PyTorch code. **NSB: revisit to make sure the right elements are summarized**
 The a3-python system is now [available](https://pypi.org/project/a3-python)
 for you to give a spin.
 
@@ -121,10 +123,10 @@ The idea can be illustrated visually:
 
 ![Barrier intuition](../../../assets/slop-feedback-loop/barrier-theory.png)
 
-Our favorite LLM model __NSB: name names here? you used some mixture along the way?__ determined that barriers should be expressed using polynomials
+Our favorite LLM models (a mixture of GPT-5.2 and Claude-Opus-4.5) determined that barriers should be expressed using polynomials
 over real and integer numbers. It introduced us to an algebraic proof machinery based on Hilbert's Positivstellensats, sums of squares, semi-definite programming,
 and the works [3][4][5][6][7][18]. Considering that the z3 theorem prover supports both polynomial arithmetic but also domains that correspond directly
-to datatypes found in mainstream programming languages we were intrigued by the origins of this direction. While Claude __NSB: name model?__ appeared inclined
+to datatypes found in mainstream programming languages we were intrigued by the origins of this direction. While Claude Opus 4.5 appeared inclined
 to present results as its own inventions, we could send the 85 page document to copilot for a quiz on origins: The closest match was a method introduced
 20 years ago for cyber physical systems [PennSUPaper] and perhaps a thread of approaches used for synthesizing invariants from Farkas lemma [GulwaniVenkie].
 
