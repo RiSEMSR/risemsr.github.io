@@ -1,5 +1,5 @@
 ---
-title: How to train your symbolic program verifier
+title: How to train your program verifier
 description: Development of a symbolic program analysis engine from prompts to functioning system
 author: Halley Young
 ---
