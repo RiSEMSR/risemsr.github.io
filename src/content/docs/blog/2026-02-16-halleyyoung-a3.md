@@ -177,15 +177,16 @@ STEP 5: BARRIER CERTIFICATE + DSE ANALYSIS
 
 For each unguarded bug candidate, A3 tries a cascade of barriers:
 
-1. **GuardDetectionBarrier** — Direct syntactic guard checks (`if x is None`, `if len(x) > 0`, `try/except`)
+1. **EnhancedAssumeGuaranteeBarrier** — Compositional reasoning about caller/callee contracts
 2. **EnhancedPostConditionBarrier** — Factory pattern and return-value analysis
 3. **EnhancedRefinementTypeBarrier** — Refinement type inference (e.g., `len(x) > 0` after a guard)
 4. **InductiveInvariantBarrier** — Loop invariant synthesis via Z3
 5. **ControlFlowBarrier** — Dominator/post-dominator analysis on the CFG
 6. **DataflowBarrier** — Reaching definitions and value-range analysis
 7. **DisjunctiveBarrier** — Case-split reasoning for optional/nullable types
-8. **ValidatedParamsBarrier** — Parameter validation tag tracking
-9. **DSEConfirmationBarrier** — Z3-backed directed symbolic execution to construct concrete triggering inputs
+8. **UnanalyzedCalleeBarrier** — Callee return-guarantee safety for unanalyzed functions
+9. **ValidatedParamsBarrier** — Parameter validation tag tracking
+10. **DSEConfirmationBarrier** — Z3-backed directed symbolic execution to construct concrete triggering inputs
 
 When no barrier proves safety, DSE constructs a *satisfying assignment* — a concrete input that triggers the crash.
 This is the strongest evidence: not just "we couldn't prove it safe," but "here's an input that breaks it."
@@ -296,7 +297,7 @@ The highlights:
 
   This is called with user-configurable values like `expert_parallel_size` and `tensor_parallel_size`.
 
-- **DeepSpeed `SynchronizedWallClockTimer.__call__` (BOUNDS)** — Indexing into `self.timers` with an unvalidated name.
+- **DeepSpeed `SynchronizedWallClockTimer.__call__` (BOUNDS)** — The inner `Timer` constructor and event-timer list can be accessed on empty sequences via `elapsed_records` or `event_timers` in the inner `Timer` class.
 
 - **DeepSpeed `ThroughputTimer._is_report_boundary` (DIV_ZERO)** — `self.global_step_count % self.steps_per_output` where `steps_per_output` can be zero. The `None` check guards against `None` but not against `0`.
 
