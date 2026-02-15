@@ -16,9 +16,9 @@ What if you asked your favorite AI agent:
 > foundation-shaking work but directed toward something the legendary Nikolaj Bj&oslash;rner 
 > (co-creator of Z3) could actually use?
 
-Our journey creating the __a3__ framework, a system for generating Advanced Automated Analysis engines and so far extracted
-static verifiers for Rust and Python. In the process of creating a3-python we used AI to (re)discover a
-foundation based on Hilbert's Stellensatz theorems for program analysis, integrate a top dozen advances in symbolic model checking, 
+This is how our journey creating the __a3__ framework, a system for generating Advanced Automated Analysis engines.
+So far we extracted proof-of-concept static verifiers for Rust and Python. In the process of creating a3-python we used AI to (re)discover a
+foundation based on Hilbert's Stellensatz theorems, integrate a top dozen advances in symbolic model checking, 
 and import mathematical libraries for reasoning about PyTorch code. **NSB: revisit to make sure the right elements are summarized**
 The a3-python system is now [available](https://pypi.org/project/a3-python)
 for you to give a spin.
@@ -26,7 +26,8 @@ for you to give a spin.
 ## A3-python
 
 Before we walk through the theory and pipeline, here is what a3 actually does on a real codebase.
-We ran `a3 scan` on five core files from [requests](https://github.com/psf/requests), __NSB: need to point to a specific commit sha so this persists__ the most downloaded Python package on PyPI (183 functions, ~5000 lines):
+We ran `a3 scan` on five core files from [requests](https://github.com/psf/requests/tree/da9113c0466850a425e554630a732ec1f7d045fc),
+the most downloaded Python package on PyPI (183 functions, ~5000 lines):
 
 ```
 $ pip install a3-python
@@ -126,19 +127,21 @@ The idea can be illustrated visually:
 
 ![Barrier intuition](../../../assets/slop-feedback-loop/barrier-theory.png)
 
-Our favorite LLM model __NSB: name names here? you used some mixture along the way?__ determined that barriers should be expressed using polynomials
+Our favorite LLM model (we used variants of GTP5, Claude, noticing a phase shift in capabilites of Claude Opus by the end of October)
+determined that barriers should be expressed using polynomials
 over real and integer numbers. It introduced us to an algebraic proof machinery based on Hilbert's Positivstellensats, sums of squares, semi-definite programming,
-and the works [3][4][5][6][7][18]. Considering that the z3 theorem prover supports both polynomial arithmetic but also domains that correspond directly
-to datatypes found in mainstream programming languages we were intrigued by the origins of this direction. While Claude __NSB: name model?__ appeared inclined
+and the works. Considering that the [z3 theorem prover](https://github.com/z3prover/z3) supports both polynomial arithmetic but also domains that correspond directly
+to datatypes found in mainstream programming languages we were intrigued by the origins of this direction. While Claude appeared inclined
 to present results as its own inventions, we could send the 85 page document to copilot for a quiz on origins: The closest match was a method introduced
-20 years ago for cyber physical systems [PennSUPaper] and perhaps a thread of approaches used for synthesizing invariants from Farkas lemma [GulwaniVenkie].
+20 years ago for [cyber physical systems](https://web.mit.edu/~jadbabai/www/papers/hscc04_2.pdf) and perhaps a thread of
+approaches used for [synthesizing invariants from Farkas lemma](https://dl.acm.org/doi/10.1145/1375581.1375616).
 
 
 ## From Foundational Math to Code
 
 
 The eloquently looking mathematical documents provide a great compass for agents to plan implementations. We still need an implementation plan.
-We asked Copilot to synthesize a script to call Copilot in a loop, bootstrapping an implementation 
+We asked GitHub Copilot CLI to synthesize a script to call Copilot in a loop, bootstrapping an implementation 
 
 
 > Combine model-checker-plan with a desire to create a continuous copilot-cli workflow, by in a scheduled and structured way calling f"copilot -p '{prompt}' --allow-all-tools", with different prompts depending on where you are in the process.  First flesh out the plan for the continual process, then write it as a .py using that call_copilot script.   Note that unless told otherwise, copilot's cli will create files itself, not return text of files.
@@ -161,8 +164,8 @@ More about oracles later.
 ![System architecture overview](../../../assets/slop-feedback-loop/system-architecture-overview.png)
 
 Thus, a3-python was created automatically using copilot through a loop that comprised of five stages:
-(1) AI theorizing to identify cross-domain analogies, (2) coding, (3) testing based on synthetic suites and large repos, (4) code fixes and (5) patching the theoretical foundations.
-__NSB: not clear to me even from original draft what step 5 really entails__
+(1) AI theorizing to identify cross-domain analogies, (2) coding, (3) testing based on synthetic suites and large repos, (4) code fixes and
+(5) patching the theoretical foundations, repeat from step (1).
 
 ## The Computer Aided Verification kitchen sink
 
@@ -212,7 +215,7 @@ That is the kitchen sink point: treat great papers as interoperable components i
 The kitchen sink approach itself is prompted with a selection of highlights from the past 30 years of Computer Aided Verification.
 While our starting point was a specific technique honed in the theory of [Positivstellensatz certificates](https://www.jstor.org/stable/24897130),
 with [accompanying toolsets](https://www.mit.edu/~parrilo/sostools/)
-and used for [Cyber physical systems](https://web.mit.edu/~jadbabai/www/papers/hscc04_2.pdf)
+and used for [cyber physical systems](https://web.mit.edu/~jadbabai/www/papers/hscc04_2.pdf)
 we pivoted and asked copilot to examine relevant CAV literature, and it identified a smorgasbord of classics and wrote custom z3 verifiers in a3-python:
 
 - [Property-directed](https://theory.stanford.edu/~arbrad/papers/IC3.pdf), [CHC-style](https://theory.stanford.edu/~arbrad/papers/IC3.pdf) reachability engines and
@@ -301,7 +304,9 @@ PyTorch's version also guards it. A3 catches the unguarded copy; the barrier cer
 
 ## Iterating for Quality — Results Across Real Codebases
 
-The quality of a static analyzer is not measured by what it finds. It is measured by what it *does not* report falsely.
+The quality of a static analyzer is not best measured by what it finds. It is measured by what it *does not* report falsely.
+The noise level of static analyzers, and for that matter fuzz testers, have a long and tortured history of irritating developers with
+bug reports that don't matter.
 Here is a summary of A3 results across four well-known open-source projects:
 
 | Codebase | Functions | Bug instances | Proven FP | Candidates | DSE-confirmed TPs |
@@ -311,7 +316,7 @@ Here is a summary of A3 results across four well-known open-source projects:
 | DeepSpeed (utils) | 83 | 77 | 74 (96.1%) | 3 | 3 |
 | LLM2CLIP (training) | 47 | 55 | 49 (89.1%) | 6 | 5 |
 
-Every TP finding across these four codebases is a real, exploitable bug — not a style complaint or a theoretical concern.
+Every TP (true positive) finding across these four codebases is a real, exploitable bug — not a style complaint or a theoretical concern.
 The highlights:
 
 - **DeepSpeed `_ensure_divisibility` (DIV_ZERO)** — A function whose *entire purpose* is to validate that numerator is divisible by denominator crashes on its own unvalidated input. When `denominator=0`, Python's `%` operator raises `ZeroDivisionError` *before* the `assert` can produce its helpful error message:
@@ -345,49 +350,11 @@ A3's architecture occupies a specific quadrant: **symbolic verifier + neural tri
 This makes the tool eco-friendly (no LLM calls for 96%+ of findings), explainable (barrier certificates provide proof artifacts),
 and deployable in CI without rate limits or API costs for the vast majority of analysis.
 
+When discussing the a3 project with colleagues, the first question that comes to mind is _how do you trust the verifier_?
+Indeed, we observed how the model under Copilot CLI could barter and cheat, producing just enough code to pass unit tests, but not enough
+to be resilient. Our proof-of-concept undeniably contains shortcuts that would not pass a quality code review. But, we have
+harnessed a3-python by _fighting AI slop with AI slop_: agressively generate code, then subject evertyhing to adverserial testing.
 
-# ------- ORIGINAL VERSION ------
-
-
-# The Slop Feedback Loop: How We Used AI to Filter AI Bugs
-
-
-<!---
-### 5) Fixing theory
-
-This was the underappreciated step. Instead of forcing code to match a brittle theory, the theory itself was patched:
-
-- definitions tightened,
-- assumptions made explicit,
-- proof obligations split by semantics layer,
-- unknown behavior modeled as contracts with conservative fallback.
-
-Then the loop restarted.
-
-![Analysis workflow](../../../assets/slop-feedback-loop/analysis-workflow.png)
-
---->
-
-
-This is "fighting AI slop with AI slop" in practice: generate aggressively, then subject everything to adversarial execution.
-
-   
-## Back-in-time detective board: where did these ideas come from?
-
-Trying to reverse-engineer the lineage is half the fun. The final system seems to inherit from at least five worlds:
-
-1. **Quantitative semantics** from the early distance-based theory.
-2. **Control-theoretic safety witnesses** from Lyapunov/barrier thinking.
-3. **Model-checking refinement** from CEGAR-style loops.
-4. **Compiler/runtime realism** from bytecode and exception semantics.
-5. **Agentic tool use** from modern LLM coding workflows.
-
-No single field would naturally propose this exact combination on day one.
-
-AI, however, is very good at proposing weird crossovers quickly. The quality filter is not the novelty of the crossover. The quality filter is whether it survives tests.
-
-
-## Why this architecture specifically fights slop
 
 It fights slop at three levels:
 
@@ -400,7 +367,7 @@ It fights slop at three levels:
 3. **Operational slop**
    Alert floods are collapsed by static filters before LLM triage and human review.
 
-So yes, this is "AI slop vs AI slop," but not symmetrically.
+So yes, this is _AI slop vs AI slop,_ but not symmetrically.
 
 - Upstream AI expands hypothesis space.
 - Midstream formal/static machinery prunes it brutally.
