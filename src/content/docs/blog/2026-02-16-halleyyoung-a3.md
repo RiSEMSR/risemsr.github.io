@@ -160,6 +160,9 @@ More about oracles later.
 
 ![System architecture overview](../../../assets/slop-feedback-loop/system-architecture-overview.png)
 
+Thus, a3-python was created automatically using copilot through a loop that comprised of five stages:
+(1) AI theorizing to identify cross-domain analogies, (2) coding, (3) testing based on synthetic suites and large repos, (4) code fixes and (5) patching the theoretical foundations.
+__NSB: not clear to me even from original draft what step 5 really entails__
 
 ## The Computer Aided Verification kitchen sink
 
@@ -348,32 +351,8 @@ and deployable in CI without rate limits or API costs for the vast majority of a
 
 # The Slop Feedback Loop: How We Used AI to Filter AI Bugs
 
-**Deliverable first:** `pip install a3-python` gives you a package that automatically discovers bug candidates, filters out as many as possible with static analysis, and then asks an LLM to make the final call only on a much smaller uncertain set.
 
-
-## The actual engine: AI theorizing -> coding -> testing -> fixing code -> fixing theory
-
-
-### 3) Testing
-
-Then came the expensive truth step:
-
-- synthetic suites,
-- regression tests,
-- large-repo scans,
-- confidence calibration,
-- triage audits.
-
-### 4) Fixing code
-
-Typical breakages were familiar:
-
-- path explosion,
-- over-conservative unknown-call handling,
-- context-loss across call boundaries,
-- duplicate floods,
-- false positives on guard-heavy code.
-
+<!---
 ### 5) Fixing theory
 
 This was the underappreciated step. Instead of forcing code to match a brittle theory, the theory itself was patched:
@@ -386,6 +365,9 @@ This was the underappreciated step. Instead of forcing code to match a brittle t
 Then the loop restarted.
 
 ![Analysis workflow](../../../assets/slop-feedback-loop/analysis-workflow.png)
+
+--->
+
 
 This is "fighting AI slop with AI slop" in practice: generate aggressively, then subject everything to adversarial execution.
 
@@ -403,26 +385,6 @@ Trying to reverse-engineer the lineage is half the fun. The final system seems t
 No single field would naturally propose this exact combination on day one.
 
 AI, however, is very good at proposing weird crossovers quickly. The quality filter is not the novelty of the crossover. The quality filter is whether it survives tests.
-
-
-### Static-first stage
-
-- Barrier-certificate foundations for safety separation [1][2].
-- Algebraic proof machinery (Positivstellensatz, SOS/SDP, hierarchy lifting, sparsity, and DSOS/SDSOS speed layers) [3][4][5][6][7][18].
-
-That is the kitchen sink point: treat great papers as interoperable components in a verification control loop, not as mutually exclusive camps.
-
-### Agentic-second stage
-
-Only the leftovers are sent to an LLM agent with tools to inspect real context:
-
-- read concrete source ranges,
-- search for guards and preconditions,
-- inspect callers and tests,
-- follow imports,
-- then produce a TP/FP classification with rationale.
-
-The key is not "LLM decides everything." The key is "LLM decides only where static proof and disproof both stop."
 
 
 ## Why this architecture specifically fights slop
@@ -446,13 +408,3 @@ So yes, this is "AI slop vs AI slop," but not symmetrically.
 
 That asymmetry is what makes it useful.
 
-## The practical takeaway
-
-If you want this pattern outside this repo, keep the order:
-
-1. Generate broadly.
-2. Filter with sound-ish machinery first.
-3. Escalate only uncertain cases to adaptive intelligence.
-4. Keep a CI ratchet so quality only moves one way.
-
-Do those four things and "AI-assisted" starts to look less like hype and more like engineering.
