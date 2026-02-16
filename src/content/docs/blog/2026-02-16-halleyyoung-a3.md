@@ -306,7 +306,7 @@ PyTorch's version also guards it. A3 catches the unguarded copy; the barrier cer
 
 ## Iterating for Quality — Results Across Real Codebases
 
-__NSB: we should have git-hashes for DeepSpeed and LLM2CLIP so reported bugs can be retrieved even if code bases change__
+__NSB: we should have git-hashes for [DeepSpeed](https://github.com/deepspeedai/DeepSpeed/issues/7838) and LLM2CLIP so reported bugs can be retrieved even if code bases change__
 
 The quality of a static analyzer is not best measured by what it finds. It is measured by what it *does not* report falsely.
 The noise level of static analyzers, and for that matter fuzz testers, have a long and tortured history of irritating developers with
