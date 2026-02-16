@@ -18,7 +18,7 @@ What if you asked your favorite AI agent:
 
 It was the start of our journey creating the __a3__ framework for generating Advanced Automated Analysis engines.
 We used the framework to create the [a3-python](https://pypi.org/project/a3-python)
-verifier for Python. We chose Python because it is used widely by humands and LLMs, 
+verifier for Python. We chose Python because it is used widely by humans and LLMs, 
 but is shunned by program verification tools due to its complexity.
 
 For decades, researchers have developed verification tools while grappling with a fundamental challenge: scaling verification to mainstream languages. 
@@ -111,7 +111,7 @@ The paper-level ideas were ambitious enough to be interesting and dangerous enou
 in many ways once code entered the room.
 The approach was based on _metric semantics_: traces as distributions, properties as structured
 acceptance sets, distance to acceptance as a first-class quantity. _Fascinating_, but also provided
-instincts that survied the transition to working prototypes: Safety wasn't considered purely a Boolean, 0/1, property.
+instincts that survived the transition to working prototypes: Safety wasn't considered purely a Boolean, 0/1, property.
 Uncertainty has shape. Quantitative semantics was used to prioritize work, and distance to satisfiability guided repair.
 
 But put to the test, to solve real-world code bases, it was killing mountains of false positives and missed true bugs.
@@ -134,9 +134,9 @@ The idea can be illustrated visually:
 
 ![Barrier intuition](../../../assets/slop-feedback-loop/barrier-theory.png)
 
-Our favorite LLM model (we used variants of GTP5, Claude, noticing a phase shift in capabilites of Claude Opus by the end of October)
+Our favorite LLM model (we used variants of GPT-5, Claude, noticing a phase shift in capabilities of Claude Opus by the end of October)
 determined that barriers should be expressed using polynomials
-over real and integer numbers. It introduced us to an algebraic proof machinery based on Hilbert's Positivstellensats, sums of squares, semi-definite programming,
+over real and integer numbers. It introduced us to an algebraic proof machinery based on Hilbert's Positivstellensatz, sums of squares, semi-definite programming,
 and the works. Considering that the [z3 theorem prover](https://github.com/z3prover/z3) supports both polynomial arithmetic but also domains that correspond directly
 to datatypes found in mainstream programming languages we were intrigued by the origins of this direction. While Claude appeared inclined
 to present results as its own inventions, we could send the 85 page document to copilot for a quiz on origins: The closest match was a method introduced
@@ -147,7 +147,7 @@ approaches used for [synthesizing invariants from Farkas lemma](https://dl.acm.o
 ## From Foundational Math to Code
 
 
-The eloquently looking mathematical documents provide a great compass for agents to plan implementations. We still need an implementation plan.
+The eloquently-looking mathematical documents provide a great compass for agents to plan implementations. We still need an implementation plan.
 We asked GitHub Copilot CLI to synthesize a script to call Copilot in a loop, bootstrapping an implementation 
 
 
@@ -245,7 +245,7 @@ A big idea that makes dynamic symbolic execution workable with system calls or o
 are not practical to reason about symbolically is to _just execute_ the code with concrete values.
 A dual idea is to axiomatize the effect of library calls and have symbolic execution use the axioms to pretend it executed
 the code of the library call. We asked copilot to specialize a3-python for both options. To axiomatize library calls, we
-used theories encoded in L&exist;&forall;N's,
+used theories encoded in L&exist;&forall;Ns,
 [MathLib4](https://github.com/leanprover-community/mathlib4),
 and had copilot import them in a format that could be used by z3's symbolic execution formalism. 
 
@@ -363,7 +363,7 @@ When discussing the a3 project with colleagues, the first question that comes to
 Indeed, we observed how the model under Copilot CLI could barter and cheat, producing just enough code to pass unit tests, but not enough
 to be resilient. Our prototype undeniably contains shortcuts that would not pass a quality code review. But, we have
 harnessed a3-python by taking the approach of translation validation: verify the output of the verifier;
-and _fighting AI slop with AI slop_: agressively generate code, then subject evertyhing to adverserial testing.
+and _fighting AI slop with AI slop_: aggressively generate code, then subject everything to adversarial testing.
 
 
 It fights slop at three levels:
@@ -391,7 +391,7 @@ whether specific languages or integration with libraries.
 So far we extracted prototypes static verifiers for Python and Rust.
 They were created as offsprings of a factory prompt that facilitates specialization to all mainstream programming languages.
 A practical difficulty with maintaining large systems that
-invoke prorietary protocols is that developers who understand coding may be disjoint from subject matter experts in
+invoke proprietary protocols is that developers who understand coding may be disjoint from subject matter experts in
 library behavior and disjoint from architects. The potential for a3 goes beyond finding common classes of Python coding errors,
 but to bring deep understanding of intent to static verification.
 
