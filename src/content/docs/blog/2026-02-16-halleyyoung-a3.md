@@ -317,7 +317,7 @@ Here is a summary of A3 results across four well-known open-source projects:
 |----------|-----------|--------------|-----------|------------|-------------------|
 | PyTorch Adafactor | 8 | 21 | 21 (100%) | 0 | 0 |
 | requests (core) | 183 | 183 | 179 (97.8%) | 4 | 4 |
-| DeepSpeed (utils) | 83 | 77 | 74 (96.1%) | 3 | 3 |
+| [DeepSpeed](https://github.com/deepspeedai/DeepSpeed/issues/7838) (utils) | 83 | 77 | 74 (96.1%) | 3 | 3 |
 | LLM2CLIP (training) | 47 | 55 | 49 (89.1%) | 6 | 5 |
 
 Every TP (true positive) finding across these four codebases is a real, exploitable bug — not a style complaint or a theoretical concern.
