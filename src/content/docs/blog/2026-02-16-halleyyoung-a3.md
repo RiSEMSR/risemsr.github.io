@@ -19,14 +19,13 @@ What if you asked your favorite AI agent:
 It was the start of our journey creating the __a3__ framework for generating Advanced Automated Analysis engines.
 We used the framework to create the [a3-python](https://pypi.org/project/a3-python)
 verifier for Python, a language that is widely used, targets of AI coding agents,
-but not well-supported with the program verification toolbox.
-For decades researchers have built program verification tools and recognized the difficulty of
-verifying mainstream programming languages at scale, due to the complexity of handling languages
-with complex type systems and semantics, and due to the need to constantly evolve verification tools in lock step with
-language features. On the flip side, LLM based synthesis of code, while mind-numbingly effective, is not grounded in
-unambiguous semantics and is ultimately not a reliable source of truth. Yet, with agents
-synthesizing code (still mind-numbing) and the tools supporting program verifiers presents a new opportunity
-to create tools grounded in semantics and applicable in areas mortals would not write verifiers for.
+but not well-supported by the program verification toolbox.
+
+For decades, researchers have developed verification tools while grappling with a fundamental challenge: scaling verification to mainstream languages. 
+The difficulty stems both from the complexity of rich type systems and semantics, and from the need to continuously evolve verification tools in lockstep with rapidly changing language features.  
+At the same time, LLM‑based code synthesis—while mind-numbingly effective—is not grounded in unambiguous semantics and cannot serve as a reliable source of truth. 
+Yet the combination of mind-numbing agent‑driven code synthesis and increasingly powerful verification infrastructure creates a new opportunity: to build tools that are semantically grounded and applicable in domains where no mortal would reasonably hand‑craft a verifier.
+
 In the process of creating a3-python we used AI to (re)discover a
 foundation based on Hilbert's Stellensatz theorems, integrate a top dozen advances in symbolic model checking, 
 and import mathematical libraries for reasoning about PyTorch code.
