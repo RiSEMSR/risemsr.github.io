@@ -198,7 +198,7 @@ Test-based evaluation is one promising approach; other techniques—symbolic ana
 
 As an example of the power of automated metrics, consider a GPT-4–generated Dafny specification for "common elements" labeled "strong" by expert reviewers [[17]](#ref17):
 
-```dafny
+```text
 // Listing 3: A Dafny specification labeled "strong" by expert reviewers—but
 // automated completeness metrics reveal it is incomplete [15].
 ensures forall x :: x in result ==> (InArray(a, x) && InArray(b, x))
@@ -209,7 +209,7 @@ This says every element in `result` appears in both inputs, and results have no 
 Automated symbolic testing [[15]](#ref15) found that the implication (`==>`) should be a bi-implication (`<==>`): without it, the empty list trivially satisfies the specification.
 The corrected version:
 
-```dafny
+```text
 // Listing 4: Corrected specification with bi-implication.
 ensures forall x :: x in result <==> (InArray(a, x) && InArray(b, x))
 ```
