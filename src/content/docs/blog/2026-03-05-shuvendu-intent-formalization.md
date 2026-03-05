@@ -120,9 +120,8 @@ Tests and code contracts can be checked *dynamically*—by running the program.
 Logical contracts require *static verification* via a program verifier, offering stronger guarantees but demanding more sophisticated specifications and tooling.
 DSLs occupy the far end of the spectrum: the specification is complete enough that correct code is *synthesized* automatically via verified compilation (Section 3.4).
 A key insight is that these levels are not alternatives—they are *complementary*, and progress at any level enables progress at the others.
-For instance, tests can validate postconditions, postconditions can guide invariant discovery, and invariants can anchor full proofs.[^1]
-
-[^1]: Intent formalization is not just limited to code generation. Even a *test oracle*—the expected output for a single test input—is an instance of intent formalization [[7]](#ref7).
+For instance, tests can validate postconditions, postconditions can guide invariant discovery, and invariants can anchor full proofs.
+Intent formalization is not just limited to code generation. Even a *test oracle*—the expected output for a single test input—is an instance of intent formalization [[7]](#ref7).
 
 > **Two important distinctions.**
 > *Not autoformalization.* Intent formalization is distinct from autoformalization—the translation of complete natural language specifications into formal logic [[8]](#ref8).
