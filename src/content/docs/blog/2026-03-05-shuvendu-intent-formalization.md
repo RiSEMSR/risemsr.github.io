@@ -246,7 +246,7 @@ This embodies the pay-as-you-go philosophy: TiCoder starts at the cost-effective
 > By rejecting test 2, the user disambiguates that the result should be a *set*, not a multiset.
 > TiCoder prunes candidates that preserve duplicates.
 
-A small-scale controlled study with 21 professional developers on code-generation benchmarks [[19]](#ref19) found:
+A small-scale controlled study with 15 professional developers on code-generation benchmarks [[19]](#ref19) found:
 developers correctly evaluated AI-generated code roughly twice as often with TiCoder as without it (*p* < 0.001), cognitive load dropped significantly (*p* = 0.007), approved tests persisted as regression tests, and the majority of participants preferred TiCoder.
 On these benchmarks, a modest amount of intent formalization—approving a few tests—yields a significant return in correctness.
 
@@ -315,7 +315,7 @@ Intent formalization draws on and extends several established areas.
 
 The age of AI-generated code is here; the age of *reliable* AI-generated code is not.
 We have presented early research showing that **intent formalization**—making user intent explicit, checkable, and enforceable through formal specifications—is a promising direction.
-LLMs can generate specifications across the full formality spectrum.
+LLMs can generate specifications across the full formalism spectrum.
 Automated metrics can evaluate specification quality at or above expert level.
 Interactive formalization significantly improves developer correctness on benchmark problems.
 End-to-end pipelines produce verified code from informal prose.
@@ -328,7 +328,7 @@ The intent gap is the bottleneck; closing it will determine whether AI makes sof
 ---
 
 **Acknowledgments.**
-This article reflects contributions from many collaborators, including Sarah Fakhoury, Saikat Chakraborty, Markus Kuppe, Shan Lu, Tahina Ramananandro, Nikhil Swamy, Aaditya Naik, Georgios Sakkas, Madeline Endres, Elizabeth Dinella, Todd Mytkowicz, Madanlal Musuvathi, and many others in the RiSE group at Microsoft Research.
+This article reflects contributions from many collaborators, including Nikolaj Bjorner, Sarah Fakhoury, Saikat Chakraborty, Markus Kuppe, Shan Lu, Tahina Ramananandro, Nikhil Swamy, Aaditya Naik, Georgios Sakkas, Madeline Endres, Elizabeth Dinella, Todd Mytkowicz, Madanlal Musuvathi, and many others in the RiSE group at Microsoft Research.
 The material presented here draws on work published at FSE 2024 [[2]](#ref2), FMCAD 2024 [[15]](#ref15), IEEE TSE 2024 [[19]](#ref19), ICSE 2025 [[20]](#ref20), ICLR 2025 [[18]](#ref18), SAIV 2025 [[13]](#ref13), and TACAS 2026 [[14]](#ref14).
 
 ---
