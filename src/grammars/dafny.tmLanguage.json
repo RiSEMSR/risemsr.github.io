@@ -5,7 +5,6 @@
     { "include": "#comments" },
     { "include": "#keywords" },
     { "include": "#types" },
-    { "include": "#operators" },
     { "include": "#strings" },
     { "include": "#numbers" }
   ],
@@ -29,14 +28,6 @@
         {
           "name": "support.type.dafny",
           "match": "\\b(set|seq|multiset|map|iset|imap|array|string|int|nat|real|bool|char|object|ORDINAL)\\b"
-        }
-      ]
-    },
-    "operators": {
-      "patterns": [
-        {
-          "name": "keyword.operator.dafny",
-          "match": "(<==>|==>|<==|&&|\\|\\||!|==|!=|<=|>=|<|>|:=|\\+|-|\\*|/|%|::)"
         }
       ]
     },
