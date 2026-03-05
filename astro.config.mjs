@@ -13,6 +13,9 @@ const fstarGrammar = JSON.parse(
 const pulseGrammar = JSON.parse(
   fs.readFileSync(new URL('./src/grammars/pulse.tmLanguage.json', import.meta.url), 'utf-8')
 );
+const dafnyGrammar = JSON.parse(
+  fs.readFileSync(new URL('./src/grammars/dafny.tmLanguage.json', import.meta.url), 'utf-8')
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,6 +32,11 @@ export default defineConfig({
 					...pulseGrammar,
 					name: 'pulse',
 					aliases: [],
+				},
+				{
+					...dafnyGrammar,
+					name: 'dafny',
+					aliases: ['dfy'],
 				},
 			],
 		},
