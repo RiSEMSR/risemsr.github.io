@@ -1,0 +1,46 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Dafny",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#strings" },
+    { "include": "#numbers" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        { "name": "comment.line.double-slash.dafny", "match": "//.*$" },
+        { "name": "comment.block.dafny", "begin": "/\\*", "end": "\\*/" }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.dafny",
+          "match": "\\b(method|function|predicate|lemma|class|module|import|export|var|const|type|datatype|codatatype|newtype|trait|extends|returns|requires|ensures|modifies|reads|decreases|invariant|if|else|while|for|match|case|return|yield|break|continue|assert|assume|expect|print|reveal|calc|forall|exists|in|ghost|static|abstract|opaque|true|false|null|this|old|fresh|allocated|by)\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "support.type.dafny",
+          "match": "\\b(set|seq|multiset|map|iset|imap|array|string|int|nat|real|bool|char|object|ORDINAL)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        { "name": "string.quoted.double.dafny", "begin": "\"", "end": "\"", "patterns": [{ "name": "constant.character.escape.dafny", "match": "\\\\." }] }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        { "name": "constant.numeric.dafny", "match": "\\b[0-9]+(\\.[0-9]+)?\\b" }
+      ]
+    }
+  },
+  "scopeName": "source.dafny"
+}
