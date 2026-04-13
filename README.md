@@ -2,7 +2,9 @@
 
 [![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
 
-News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group.
+https://risemsr.github.io/
+
+News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group. 
 
 ## 🚀 Project Structure
 
