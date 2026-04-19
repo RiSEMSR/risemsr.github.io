@@ -17,7 +17,12 @@ formalization of the CLRS textbook.
 
 ![Spotting](../../../assets/Spotlight_AutoCLRS.png)
 
-## Small Proof-oriented Tests
+> Note: This image is produced by Copilot from [this
+ image](../../../assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
+ image for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
+
+
+## Small Proof-Oriented Tests
 
 An old idea, popularized in the last decade especially by the [DeepSpec
 project](https://deepspec.org/main), is for specifications of verified
