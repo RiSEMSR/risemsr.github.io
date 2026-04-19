@@ -150,7 +150,7 @@ fn test_insertion_sort_3 ()
 
   insertion_sort arr 3sz ctr;  //call the verified library
 
-  //a lemma proving that a sorted permutations of [3;2;1] is [1;2;3]
+  //a lemma proving that a sorted permutation of [3;2;1] is [1;2;3]
   completeness_sort3 (value_of arr); 
 
   // Verify complexity bound: at most n*(n-1)/2 = 3 comparisons
@@ -318,9 +318,9 @@ only the edges from 0 to 1 and 1 to 2 and that the total weight of the tree is
 ## Parting Thoughts
 
 The interplay between testing and proving is a rich area of study, and SPOTs for
-specification review is yet another example. While they have been a useful way
-to find and fix specification gaps in AutoCLRS, we should also point out some
-limitations.
+reviewing agent-authored specifications is yet another example of testing and
+proving put to work together. While SPOTs have been useful in finding and fixing
+specification gaps in AutoCLRS, we should also point out some limitations.
 
 *Over-fitting Specifications to Tests* One obvious danger is for agents that
 author both the libraries and their SPOTs to over-fit the specifications to the
@@ -341,5 +341,4 @@ specifications are abstract, concise, and elegant, matters of good taste at
 which agents are often lacking. One could perhaps get at some aspects of this by
 assessing the level of automation in the proofs of SPOTs. Good clean specs
 usually also lead to more concise proofs, and the proofs of SPOTs in AutoCLRS
-are actually quite verbose, so there's still lots of room for improvement.
-
+are often quite verbose, so there's still lots of room for improvement.
