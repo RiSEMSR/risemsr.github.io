@@ -17,7 +17,7 @@ formalization of the CLRS textbook.
 
 ![Spotting](../../../assets/Spotlight_AutoCLRS.png)
 
-> Note: This image is produced by Copilot from [this
+> Note: This image was produced by Copilot from [this
  image](../../../assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
  image for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
 
