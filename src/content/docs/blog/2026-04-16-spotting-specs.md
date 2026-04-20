@@ -7,8 +7,8 @@ author: Nik Swamy
 * Author: Nik Swamy and Shuvendu Lahiri
 
 In our last two blog posts, we discussed using [AI agents to author verified
-software libraries at scale](blog/2026-0306-autoclrs) and the [importance of
-intent formalization](blog/2026-03-05-shuvendu-intent-formalization) in the
+software libraries at scale](/blog/2026-0306-autoclrs) and the [importance of
+intent formalization](/blog/2026-03-05-shuvendu-intent-formalization) in the
 software development process, especially when untrustworthy AI agents write
 code. This post puts these ideas together by using a simple, folklore
 methodology (that we're calling *small proof-oriented tests*, or SPOTs) to
@@ -329,7 +329,7 @@ only the edges from 0 to 1 and 1 to 2 and that the total weight of the tree is
 
 The interplay between testing and proving is a rich area of study, and SPOTs for
 reviewing agent-authored specifications is yet another example of testing and
-proving at work together. While SPOTs have been useful in finding and fixing
+proving atq work together. While SPOTs have been useful in finding and fixing
 specification gaps in AutoCLRS, we should also point out some limitations.
 
 *Over-fitting Specifications to Tests* One obvious danger is for agents that
