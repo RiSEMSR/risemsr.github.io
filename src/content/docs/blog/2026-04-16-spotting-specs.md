@@ -329,7 +329,7 @@ only the edges from 0 to 1 and 1 to 2 and that the total weight of the tree is
 
 The interplay between testing and proving is a rich area of study, and SPOTs for
 reviewing agent-authored specifications is yet another example of testing and
-proving put to work together. While SPOTs have been useful in finding and fixing
+proving at work together. While SPOTs have been useful in finding and fixing
 specification gaps in AutoCLRS, we should also point out some limitations.
 
 *Over-fitting Specifications to Tests* One obvious danger is for agents that
