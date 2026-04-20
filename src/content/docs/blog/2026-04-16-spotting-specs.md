@@ -15,10 +15,10 @@ methodology (that we're calling *small proof-oriented tests*, or SPOTs) to
 identify and automatically fix specification gaps in AutoCLRS, our agentic
 formalization of the CLRS textbook.
 
-![Spotting](/src/assets/Spotlight_AutoCLRS.png)
+![Spotting](../../../assets/Spotlight_AutoCLRS.png)
 
 > Note: This image was produced by Copilot from [this
- image](/src/assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
+ image](../../../assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
  image for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
 
 
