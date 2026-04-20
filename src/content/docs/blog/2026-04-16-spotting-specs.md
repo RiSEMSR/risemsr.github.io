@@ -55,9 +55,9 @@ succeeds. Small proof-oriented tests have some useful properties:
   libraries, both concretely and for proof.
 
 We had agents generate SPOTs for all the algorithms in AutoCLRS and found
-several specification gaps. Then, over the course of nearly 300 additional
-commits to the repository, we had agents fix these specification gaps and
-associated proofs.
+several specification gaps. Then, with several further iterations and
+specification critique (in natural language) from the authors, we had agents fix
+these specification gaps and associated proofs.
 
 ### Some Takeaways
 
@@ -119,9 +119,10 @@ fn insertion_sort
 ```
 
 The postcondition of this function says that the output sequence `s` is a sorted
-permutation of the input sequence `s0` (and that a ghost variable that counts
+permutation of the input sequence `s0` and that a *ghost variable* that counts
 the number of operations in `insertion_sort` is bounded by the expression
-`complexity_bounded`).
+`complexity_bounded` (ghost variables exist only for specification and proof and
+do not influence the runtime behavior of the program).
 
 Now, this looks like a reasonable specification of a sorting function, but are
 the `sorted` and `permutation` predicates accurate, and is `complexity_bounded`
@@ -181,6 +182,8 @@ consuming, writing small proof-oriented tests is a standard part of
 proof-engineering practice, and, perhaps unsurprisingly by now, agents can
 easily write SPOTs too.
 
+
+
 ## SPOTs for AutoCLRS
 
 As discussed in [our previous post](/blog/2026-03-06-autoclrs/), a big part of
@@ -206,6 +209,13 @@ precise specifications, and we have reviewed the tests and found them to be
 useful, judging this to be an accurate assessment of precision would be
 hasty---SPOTs are small and do not necessarily cover all the aspects of a
 specification, so it's quite possible that some gaps were missed.
+
+Others have observed that writing provable tests is a useful way to evaluate
+specifications (e.g., [[1]](https://arxiv.org/abs/2406.09757) and
+[[2]](https://www.usenix.org/system/files/osdi24-goldweber.pdf)), but writing
+proofs of tests at scale has been a barrier to using this approach in practice.
+Now, with agents authoring SPOTs, we can use them in an automated feedback loop
+to spot and fix specification gaps at scale.
 
 Let's look in detail at a couple of the algorithms with specification gaps, and
 how they were fixed.
