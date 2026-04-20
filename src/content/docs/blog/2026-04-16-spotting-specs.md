@@ -17,9 +17,9 @@ formalization of the CLRS textbook.
 
 ![Spotting](../../../assets/Spotlight_AutoCLRS.png)
 
-> Note: This image was produced by Copilot from [this
- image](../../../assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
- image for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
+> Note: This image was produced by Copilot from the image in the [previous
+  post](/blog/2026-03-06-autoclrs), which in turn uses [Wikipedia's cover image
+ for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
 
 
 ## Small Proof-Oriented Tests
