@@ -7,7 +7,7 @@ author: Nik Swamy
 * Author: Nik Swamy and Shuvendu Lahiri
 
 In our last two blog posts, we discussed using [AI agents to author verified
-software libraries at scale](/blog/2026-0306-autoclrs) and the [importance of
+software libraries at scale](/blog/2026-03-06-autoclrs) and the [importance of
 intent formalization](/blog/2026-03-05-shuvendu-intent-formalization) in the
 software development process, especially when untrustworthy AI agents write
 code. This post puts these ideas together by using a simple, folklore
@@ -15,10 +15,10 @@ methodology (that we're calling *small proof-oriented tests*, or SPOTs) to
 identify and automatically fix specification gaps in AutoCLRS, our agentic
 formalization of the CLRS textbook.
 
-![Spotting](../../../assets/Spotlight_AutoCLRS.png)
+![Spotting](/src/assets/Spotlight_AutoCLRS.png)
 
 > Note: This image was produced by Copilot from [this
- image](../../../assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
+ image](/src/assets/AutoCLRS.png), which in turn uses [Wikipedia's cover
  image for the book](https://en.wikipedia.org/wiki/File:Clrs4.jpeg).
 
 
