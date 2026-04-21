@@ -47,6 +47,7 @@ export default defineConfig({
 			description: 'News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group.',
 			social: [
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/risemsr' },
+				{ icon: 'rss', label: 'RSS', href: '/rss.xml' },
 			],
 			sidebar: [
 				{
