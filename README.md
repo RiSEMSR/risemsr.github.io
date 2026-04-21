@@ -6,6 +6,8 @@ https://risemsr.github.io/
 
 News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group. 
 
+Learn more on the [RiSE webpage](https://www.microsoft.com/en-us/research/group/research-software-engineering-rise/) and the [MSR webpage](https://www.microsoft.com/en-us/research/).
+
 ## 🚀 Project Structure
 
 ```
