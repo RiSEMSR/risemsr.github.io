@@ -295,7 +295,7 @@ be
 useful](https://github.com/FStarLang/AlgoStar/blob/26caa8051ef42a0afa9066101f0b2a9a55a44b88/autoclrs/ch23-mst/CLRS.Ch23.Prim.Impl.fsti#L133-L139).
 
 An [initial SPOT for
-Prim](https://github.com/FStarLang/AlgoStar/blob/2f0ecc02d397e0ff8c43f02b9cf9cc14c172fcbc/autoclrs/ch23-mst/CLRS.Ch23.Kruskal.ImplTest.fst)
+Prim](https://github.com/FStarLang/AlgoStar/blob/26caa8051ef42a0afa9066101f0b2a9a55a44b88/autoclrs/ch23-mst/CLRS.Ch23.Prim.ImplTest.fst)
 set up a small three-vertex triangle graph below and found that one could not
 actually prove that the output of Prim had the expected minimal spanning tree.
 
