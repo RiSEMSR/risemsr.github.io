@@ -5,6 +5,7 @@ author: Shuvendu K. Lahiri
 ---
 
 * Author: Shuvendu K. Lahiri, Research in Software Engineering (RiSE), Microsoft Research
+* Paper: [arXiv:2603.17150](https://arxiv.org/abs/2603.17150)
 ---
 
 > **TL;DR:** AI can now write code, but who checks that it does what you actually meant? We argue that the key challenge is *intent formalization*—automatically turning vague human intent into precise, checkable specifications. Early research shows LLMs can generate useful specs, interactive formalization helps developers catch more bugs, and end-to-end pipelines can produce provably correct code from informal prose. The shift is from verification to the absence of specifications to verify against.
