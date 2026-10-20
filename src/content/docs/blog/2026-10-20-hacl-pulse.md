@@ -12,8 +12,8 @@ author: Gabriel Ebner
 > [HACL\*](https://github.com/hacl-star/hacl-star) verified cryptographic
 > library. It is written in [F\*](https://fstar-lang.org) and
 > [Pulse](https://fstar-lang.org/tutorial/book/pulse/pulse.html) and extracted
-> to C by F\*'s new Custard backend. It covers everything HACL\* offers except
-> the EverCrypt agile provider. It also adds things HACL\* doesn't have:
+> to C by F\*'s new Custard backend. It covers every algorithm HACL\* offers
+> (though not yet its platforms, bindings, or agile EverCrypt layer). It also adds things HACL\* doesn't have:
 > ML-KEM (FIPS 203), ML-DSA (FIPS 204), and HPKE in all four modes. It proves
 > functional-correctness theorems about the specs themselves, including the
 > elliptic-curve group laws that HACL\* admits. On the target machine every
@@ -47,7 +47,7 @@ feature, hacl-pulse uses that feature directly.
 
 ## What's in the box
 
-hacl-pulse has feature parity with HACL\*'s C and F\* APIs. All of the
+hacl-pulse covers the algorithms in HACL\*'s C and F\* APIs. All of the
 following are specified, implemented, verified, extracted to C, and tested
 against published vectors (34 C test harnesses):
 
@@ -164,14 +164,162 @@ modexp (about 2x, against hand-tuned assembly).
 Every optimization is recorded in
 [`bench/REPORT.md`](https://github.com/FStarLang/hacl-pulse/blob/master/bench/REPORT.md):
 the measurement that motivated it, the experiment that confirmed or killed it,
-and the result. Our favorite entry is
-["The compiler is allowed to undo a constant-time algorithm"](https://github.com/FStarLang/hacl-pulse#the-compiler-is-allowed-to-undo-a-constant-time-algorithm).
-F\* proves that the masked table lookup in the windowed scalar multiplication
-returns the right entry. It has no way to say that the lookup takes the same
-time whatever the secret index is. Clang noticed the sixteen comparisons
-against constants and was entitled to compile them into something
-data-dependent. The fix cost some clang performance, and it's a good reminder
-of where the verified guarantee stops and the trusted toolchain starts.
+and the result.
+
+## Verification makes optimization safe
+
+Optimized cryptographic code is where bugs like to hide. The fast path
+handles a carry slightly differently, an unrolled loop drops a lane, or a
+deferred reduction overflows on an input nobody tested. In an unverified
+library, every speedup is a trade between performance and confidence. You
+fuzz, compare against the slow version, and hope.
+
+In hacl-pulse that trade doesn't exist. **An optimized implementation has
+to prove the same specification as the code it replaces.** The postcondition
+of SHA-3's permutation is the spec's permutation, whether the loop is rolled or
+unrolled. The postcondition of X25519's field multiply is multiplication
+modulo 2^255 - 19, whether the field uses five 51-bit limbs or four 64-bit
+limbs. If the change verifies, it's correct, and nothing above it needs to be
+re-examined. If it doesn't verify, it doesn't get merged.
+
+That changed what we were willing to try. The performance log in
+[`bench/REPORT.md`](https://github.com/FStarLang/hacl-pulse/blob/master/bench/REPORT.md)
+has some 70 parts, and many of the changes are ones you'd normally approach
+with great caution:
+
+* **Unrolling Keccak by hand.** The theta, rho/pi, and chi steps are written
+  out lane by lane in the Pulse source, 25 calls each. One helper is
+  verified against a symbolic lane index and then applied to 25 literal
+  ones, so the solver never sees a nested sequence update. The result is
+  straight-line C, and SHA-3 now runs at about half of HACL\*'s time.
+* **Changing a field representation.** Curve25519 moved from eight 32-bit limbs to
+  51-bit limbs, then to a straight-line multiply, and then to 64-bit limbs.
+  Every step changed the carry discipline, which is exactly where field
+  arithmetic usually breaks.
+* **Deferring algebra.** Four-way GHASH now adds four raw 256-bit products and
+  reduces them once instead of four times. That's only correct because the
+  reduction is linear, and the proof makes that explicit with three small
+  lemmas about GF(2^128). GHASH went from 2.11 to 1.28 cycles per byte.
+* **Windowed, table-driven scalar multiplication** on all three curves,
+  4-bit windows and triangle squaring in modexp, and a P-256 field
+  specialized to its prime. Each one replaces a simple algorithm with a much
+  less obvious one that has to compute the same value.
+
+This matters even more when agents do the work. An agent can propose and
+benchmark dozens of optimizations in an afternoon, far more than any human
+could review line by line for correctness. With verification, review can
+focus on *whether the change is worth it*, while F\* checks *whether it's
+right*. The loop becomes: hypothesize, implement, verify, measure, and keep
+or revert. The report records that loop over and over, including the
+experiments that didn't pay.
+
+In practice, the cost of an optimization shows up as proof effort, not as
+bugs. The recurring lesson in the report is that when a proof of an
+optimized routine is slow, the fix is to "take the reasoning out of the
+context": split the routine into helpers with tight specifications rather
+than raising solver limits. One BLAKE2 change took a module from an
+18-minute timeout to 25 seconds this way.
+
+### Three caveats
+
+"If it verifies, it's correct" means correct *with respect to the spec, under
+the stated assumptions*. Three caveats came up during the optimization work.
+Each one marks a place where something besides the proof has to do the job.
+
+**Constant-time execution is not in the spec.** Windowed scalar
+multiplication reads one of sixteen precomputed points, and the four bits
+that choose which one are secret. `Hacl.Bignum.Base.table_select` therefore
+touches all sixteen entries and folds each one through a mask. F\* proves
+that the loop returns entry *d*. It has no way to state that the loop takes
+the same time whatever *d* is, because that's a property of the emitted
+instructions, not of the result. Clang `-O3` unrolled the loop, recognized
+the sixteen mask computations as comparisons against the constants 0 to 15,
+and compiled them into a secret-dependent branch cascade. The timing spread
+across digits was 158%, enough to read the digit from outside. The fix is a
+value barrier, `Hacl.Launder.launder`. It is the identity function, but it
+wraps the mask in an empty inline `asm` statement the optimizer can't see
+through, so the masks are no longer recognizable as comparisons. With it,
+the spread is 1.2%. `tests/test_consttime.c` and `tests/test_launder.c` time
+the shipped code and fail if the spread comes back
+([full story](https://github.com/FStarLang/hacl-pulse#the-compiler-is-allowed-to-undo-a-constant-time-algorithm)).
+
+**Hardware intrinsics enlarge the trusted computing base.** The vector and
+instruction-set backends (AES-NI, PCLMULQDQ, the SHA extensions, AVX2, and
+AVX-512) and the 64-bit add-with-carry are described to F\* by `assume val`
+axioms in `lib/Hacl.Vec128.fst`, `Vec256.fst`, `Vec512.fst`, and
+`Carry64.fst`. Handwritten C headers (`c/Hacl_*.h`) implement them. F\*
+verifies the Pulse code that uses them, *assuming* those axioms are true.
+The axioms themselves are checked by differential C tests (`test_vec128.c`,
+`test_vec256.c`, `test_vec512.c`, `test_carry64.c`) that compare each
+intrinsic against an independent reference transcription. Each new
+intrinsic-backed fast path therefore adds axioms and a test, and those get
+careful human review.
+
+**The specs themselves need checking.** Early on, `Spec.Curve25519`'s
+doubling step used `BB` where RFC 7748 says `AA`. Everything verified,
+because the code faithfully implemented the specification, typo included. A
+proof says the code matches the spec. It says nothing about whether the spec
+matches the RFC. A small Python oracle checked against the RFC 7748 test
+vectors found the bug in minutes. That's why every primitive is tested
+against published vectors, and why the repository now has the
+`Spec.*.Correctness` modules described above. These prove round-trip,
+key-agreement, and sign-then-verify theorems about the top-level specs,
+which gives the specs a second, independent kind of check.
+
+So verification doesn't make the whole optimization problem go away. It
+moves the remaining risk into a few places that are small, named, and
+tested: the timing behavior of a handful of secret-indexed routines, a short
+list of axiomatized intrinsics, and the specifications. Everything else can
+be optimized as aggressively as the proofs allow.
+
+## Where hacl-pulse still falls short of HACL\*
+
+Feature parity is about algorithms. On almost everything else that makes a
+library usable in practice, HACL\* is still well ahead.
+
+* **x86-64 only.** The generated C has unconditional x86
+  `__attribute__((target("bmi2")))`, `"avx2"`, and similar annotations, and
+  it relies on `unsigned __int128`. So it effectively builds only for 64-bit
+  x86 with GCC or Clang. There's no ARM (and no NEON backend), no 32-bit
+  target, and no MSVC. HACL\* ships portable, GCC-compatible, and
+  MSVC-compatible distributions and runs on ARM, 32-bit, and embedded
+  platforms.
+* **No agile layer.** There is no EverCrypt-style provider that picks an
+  algorithm and an implementation at run time behind one state type. This is
+  deliberate: the dispatch between AES-NI and portable AES, or between the SHA
+  extensions and scalar SHA-256, happens *inside* each algorithm. But a
+  caller that wants to choose "a hash" or "an AEAD" at run time has to write
+  the switch itself.
+* **No other language targets.** HACL\* reaches far beyond C. There are
+  [OCaml bindings](https://opam.ocaml.org/packages/hacl-star/), a WebAssembly
+  and JavaScript build, and verified Rust code used by
+  [libcrux](https://github.com/cryspen/libcrux). hacl-pulse produces C only.
+  It has no Rust extraction and no bindings for any other language.
+* **Not a drop-in replacement.** The C API has different names
+  (`Hacl_Streaming_SHA2_*` rather than `Hacl_Hash_SHA2_*`), `size_t` lengths,
+  caller-owned DRBG state, and a different error convention. Some HACL\*
+  surfaces have no counterpart yet: a streaming Poly1305 MAC, BLAKE2 salt and
+  personalization parameters, and the fixed-width `Bignum256`/`Bignum4096` and
+  `GenericField` APIs. Switching from HACL\* means porting code.
+* **One amalgamated file.** `dist/` is a single `Hacl.c` (about 56K lines,
+  2.5 MB) and a single `Hacl.h`. HACL\* ships one file per algorithm, so an
+  embedder can take only what it needs.
+* **Assembly-level performance on the curves.** X25519 and Ed25519 signing
+  are still about 1.3x behind HACL\*'s BMI2/ADX assembly under gcc, and the
+  bignum rows are about 2x behind OpenSSL. Not using assembly was a design
+  choice, and this is part of its cost.
+* **Maturity.** HACL\* has years of deployment in Firefox, Linux, Python,
+  and elsewhere, external scrutiny, and stable releases. hacl-pulse is six
+  weeks old, has had no external audit, and tracks F\* `master` instead of
+  a release, so building it needs a recent nightly. Its proofs have also
+  been checked against only one F\* and Z3 toolchain so far.
+  <!-- TODO: confirm HACL* deployment / binding list before publishing -->
+
+Most of these are engineering rather than research. Portable and ARM
+backends, Rust extraction, and per-algorithm distribution are all on the
+table. <!-- TODO: confirm these are actual plans --> But we want to be clear that today, hacl-pulse is a demonstration of
+what a modern verified crypto library can look like, not a replacement for
+HACL\* in production.
 
 ## How it was built
 
@@ -197,10 +345,10 @@ A few observations:
 * **The design documents paid off.** Writing down what HACL\* does and what
   we wanted to do differently gave the agents a stable target and gave us a
   checklist to measure parity against.
-* **Agents are good at performance engineering when they can measure.** Many
-  of the optimizations in `bench/REPORT.md` are hypothesis/experiment/result
-  loops. Each one has a verified-correct change on one side and a cycle count
-  on the other.
+* **Agents are good at performance engineering when they can measure and
+  verify.** As described above, the verifier and the benchmark harness
+  together let agents explore aggressively without anyone hand-checking each
+  change for correctness.
 * **Proof engineering knowledge accumulates.** The README's
   ["Proof engineering notes"](https://github.com/FStarLang/hacl-pulse#proof-engineering-notes)
   capture lessons such as "a product of two variables under a quantifier
