@@ -4,8 +4,7 @@ description: A from-scratch reimplementation of the HACL* verified crypto librar
 author: Gabriel Ebner
 ---
 
-* Author: Gabriel Ebner, with thanks to Nik Swamy
-  <!-- TODO: confirm author list and acknowledgements -->
+* Author: Gabriel Ebner
 
 > **TL;DR:** [hacl-pulse](https://github.com/FStarLang/hacl-pulse) is a new,
 > from-scratch reimplementation of the
@@ -19,18 +18,18 @@ author: Gabriel Ebner
 > elliptic-curve group laws that HACL\* admits. On the target machine every
 > primitive runs within 1.32x of HACL\*'s best configuration, and 16 of them
 > run faster. It took about six weeks, and nearly all of the code was written
-> with Copilot CLI.
+> by AI agents running Claude Opus 5 and Opus 5.5.
 
 ## Why rebuild HACL\*?
 
 HACL\* is one of the success stories of formal verification. Its verified C
 code ships in Firefox, Linux, the Tezos and Python ecosystems, and elsewhere.
-<!-- TODO: double-check the deployment list before publishing -->
 It was written over many years in Low\*, an embedded subset of F\* designed
 for C-like code, and it carries some workarounds for features F\* did not have
 at the time: a single integer type indexed by width and secrecy, a custom
-tactic to specialize width-generic code, 32-bit lengths everywhere, and Vale
-assembly for the fast paths.
+tactic to specialize width-generic code, and 32-bit lengths everywhere. For
+its fastest paths it relies on [Vale](https://github.com/project-everest/vale),
+a separate framework for writing and verifying x86-64 assembly.
 
 F\* has changed a lot since then. [Pulse](https://fstar-lang.org/tutorial/book/pulse/pulse.html)
 is now a mature separation-logic language for imperative code, type classes
@@ -72,10 +71,11 @@ That's roughly 157,000 lines of F\* and Pulse (about 57K of specification and
 (AES-NI, PCLMULQDQ, the SHA extensions, AVX2, and AVX-512) are C intrinsics
 behind narrow, axiomatized interfaces, selected at run time.
 
-## Five design commitments
+## Modernizing the design
 
-The [README](https://github.com/FStarLang/hacl-pulse#the-five-design-commitments)
-explains these in detail. In brief:
+hacl-pulse departs from HACL\*'s design in five places. The
+[README](https://github.com/FStarLang/hacl-pulse#the-five-design-commitments)
+explains them in detail. In brief:
 
 1. **Secret integers are types, not an index.** Each secret width is its own
    abstract type, and its interface exposes only constant-time operations.
@@ -313,29 +313,23 @@ library usable in practice, HACL\* is still well ahead.
   weeks old, has had no external audit, and tracks F\* `master` instead of
   a release, so building it needs a recent nightly. Its proofs have also
   been checked against only one F\* and Z3 toolchain so far.
-  <!-- TODO: confirm HACL* deployment / binding list before publishing -->
 
 Most of these are engineering rather than research. Portable and ARM
 backends, Rust extraction, and per-algorithm distribution are all on the
-table. <!-- TODO: confirm these are actual plans --> But we want to be clear that today, hacl-pulse is a demonstration of
+table. But we want to be clear that today, hacl-pulse is a demonstration of
 what a modern verified crypto library can look like, not a replacement for
 HACL\* in production.
 
 ## How it was built
 
-<!-- TODO: This section is inferred from the commit history (383 of 400
-commits co-authored with Copilot, Sep 6 to Oct 19 2026). Please replace with
-first-hand details: models used, how much was human-written (specs? design
-docs?), how specs were reviewed, rough agent-hours, what went wrong. -->
-
 hacl-pulse went from an empty repository to feature parity in about six
-weeks, across roughly 400 commits. Almost all of them were written with
-[Copilot CLI](https://github.com/features/copilot/cli) as co-author. The
-workflow followed the pattern from our
+weeks, across roughly 400 commits. Almost all of the specifications, code,
+and proofs were written by AI agents running Claude Opus 5 and, later,
+Opus 5.5. The workflow followed the pattern from our
 [AutoCLRS](/blog/2026-03-06-autoclrs) and
 [agentic PoP](/blog/2026-02-04-nik-agentic-pop) posts. Humans set the
 direction. The first commits were [design documents](https://github.com/FStarLang/hacl-pulse/tree/master/design):
-an inventory of HACL\*'s API, the design commitments above, and a
+an inventory of HACL\*'s API, the design changes above, and a
 feasibility study for replacing Vale. Agents did most of the specification,
 implementation, and proof work. Every claim was then checked against the
 verifier, the published test vectors, and the benchmark harness.
@@ -351,14 +345,74 @@ A few observations:
   change for correctness.
 * **Proof engineering knowledge accumulates.** The README's
   ["Proof engineering notes"](https://github.com/FStarLang/hacl-pulse#proof-engineering-notes)
-  capture lessons such as "a product of two variables under a quantifier
-  poisons the whole SMT query." These notes help the next agent (or human)
-  as much as they helped this one.
-* **Specification review is still the bottleneck.** This is why we invested
-  in correctness theorems about the specs and in independent test vectors,
-  rather than trusting that a verified refinement of *some* spec is enough.
-  See Shuvendu's post on [intent formalization](/blog/2026-03-05-shuvendu-intent-formalization)
+  record 72 lessons so far, each written down after it cost real time. One
+  example is "a product of two variables under a quantifier poisons the whole
+  SMT query." F\* sends proof obligations to the Z3 solver, which handles
+  linear arithmetic well but struggles with nonlinear arithmetic. A loop
+  invariant like "for all `k < i * n`, ..." puts a product of two
+  variables under a `forall`. That doesn't just make that one fact hard to
+  prove. It can make *every* fact in the same query unprovable, including
+  trivial ones like `i == j` from `i < j + 1` and `not (i < j)`. FrodoKEM's
+  message encoding ran into this and took over four hours to verify. The fix
+  was to restate the invariant so that the bound stays linear. Notes like
+  this help the next agent (or human) as much as they helped this one.
+* **Specification review is still the bottleneck.** A verified refinement
+  of the wrong spec is still wrong, as the Curve25519 doubling bug showed.
+  That's why every primitive is tested against published vectors, and why
+  the specs carry their own correctness theorems: decryption inverts
+  encryption for every AEAD and for NaCl, both parties agree in X25519, P-256
+  and secp256k1 ECDH, and FFDHE, honest signatures verify for Ed25519, ECDSA,
+  and RSA-PSS, and encapsulation round-trips for ML-KEM, FrodoKEM, and every
+  HPKE mode. These are the properties a cryptographer would check first, and
+  they're much easier to review than the spec functions themselves. See
+  Shuvendu's post on [intent formalization](/blog/2026-03-05-shuvendu-intent-formalization)
   and our post on [small proof-oriented tests](/blog/2026-04-16-spotting-specs).
+
+## Conclusions
+
+**Large verified libraries can now be replicated quickly in a new
+language.** Pulse is essentially a new language compared to Low\*. It has
+separation logic instead of explicit memory footprints, type classes instead
+of tactics, and a different extraction pipeline. Even so, HACL\*'s feature
+set, built over many years, was reproduced in about six weeks, and
+extended along the way.
+
+**Architecture-level changes are now viable as a rewrite.** hacl-pulse is
+not a port. Secret integers as abstract types, `size_t` lengths everywhere,
+memory wiping enforced by the type system, and no assembly are cross-cutting
+decisions that touch every file. In a mature codebase, decisions like these
+are usually out of reach because the migration would cost too much. With
+agents, you can enforce them by rewriting everything in the new style.
+
+**State-of-the-art performance should be table stakes.** Other libraries were
+very useful here, both as performance targets and as a source of algorithmic
+ideas: HACL\* itself, OpenSSL, AWS-LC, libsodium, libjade, and more. When an
+agent can read how the fastest implementation does it, try the idea, and
+verify the result, reaching state-of-the-art performance (or any other
+measurable goal) becomes a matter of token spend. Verified libraries no
+longer have to accept "correct but slower" as the price of correctness.
+
+**The incumbents' advantage has shrunk dramatically.** Mature libraries used
+to carry a huge advantage in accumulated investment, which was hard for a
+newcomer to match. That is no longer true. A newcomer with a better design
+can catch up rapidly. For language designers, this means **now is the time to
+design new languages. The libraries come for free!**
+
+**Agents connect proof assistants to computer algebra without
+infrastructure.** The group-law proofs for Ed25519, P-256, and secp256k1 rely
+on certificates produced by computer algebra systems.
+[Singular](https://www.singular.uni-kl.de/) computes the polynomial
+cofactors behind the completeness identities, and
+[PARI/GP](https://pari.math.u-bordeaux.fr/) produces Pocklington primality
+certificates for the field primes and shows that certain cubics have no
+roots. F\* never trusts these tools. It re-checks every certificate with a
+small verified polynomial normalizer. In the past, connecting a computer
+algebra system to a proof assistant was a research project in its own right
+(see, for example, [*A bi-directional extensible interface between Lean and
+Mathematica*](https://arxiv.org/abs/2101.07758)). Here the agent simply wrote
+the Singular and PARI/GP scripts, ran them, and turned their output into F\*
+modules, with no dedicated infrastructure. The same approach works in any
+proof assistant.
 
 ## Try it
 
