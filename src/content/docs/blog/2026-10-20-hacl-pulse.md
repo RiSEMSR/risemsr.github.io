@@ -57,9 +57,8 @@ and tested against published vectors (34 C test harnesses):
   RFC 7919 groups), and RSA-PSS.
 * **Randomness:** HMAC-DRBG with an OS entropy shim.
 * **Post-quantum:** FrodoKEM (all four parameter sets), and **ML-KEM** and
-  **ML-DSA** (all three parameter sets each), which HACL\* doesn't have.
-* **HPKE** (RFC 9180) in all four modes with all three AEADs. HACL\* ships
-  only Base mode over ChaCha20-Poly1305.
+  **ML-DSA** (all three parameter sets each).
+* **HPKE** (RFC 9180) in all four modes with all three AEADs.
 
 That's about 157,000 lines of F\* and Pulse (57K of specification, 94K of
 implementation and proof), extracted to a single 56K-line `Hacl.c`. There is
@@ -112,12 +111,85 @@ Along the way, the library proves facts that are usually assumed: that the
 P-256 and secp256k1 group orders are prime, that the ML-KEM NTT is a ring
 isomorphism, that the X25519 ladder computes a scalar multiple on the
 Edwards group, and **the group laws for Ed25519, P-256, and secp256k1**.
+The last of these is the most interesting, so let's zoom in.
 
-That last one deserves emphasis. In HACL\*, these group-law lemmas are
-`admit()`, and its windowed Ed25519, windowed P-256, and GLV secp256k1 all
-rest on them. In hacl-pulse they are proved, by reducing each statement to
-polynomial identities modulo the curve equation and checking those with a
-small verified polynomial normalizer.
+## Zooming in: the elliptic-curve group laws
+
+**Why we needed them.** Fast implementations compute a fixed-base scalar
+multiple *k G* from a precomputed table of multiples of *G*. For example,
+a 4-bit window splits *k* into digits and adds up *d<sub>i</sub>
+(16<sup>i</sup> G)*. That's only correct if scalar multiplication is a
+homomorphism from the integers, which holds because the curve points form a
+commutative group. So the table needs associativity of point addition.
+Benchmarks made this concrete. On P-256, variable-base ECDH (where HACL\*
+has no table either) was within 1.15x of HACL\*, while fixed-base was at
+2.59x, so the whole gap was the table. The agent first wrote down the
+group-law statements as interfaces for all three curves, as a specification
+of the work to be done, and noticed something surprising along the way:
+**HACL\* doesn't prove these laws.** In its `Spec.{Ed25519,P256,K256}.Lemmas`
+they are `admit()`, so HACL\*'s windowed Ed25519, windowed P-256, and GLV
+secp256k1 all rest on unproved facts.
+
+**The approach.** Associativity is the hard law, and we took the standard
+route used by Bernstein and Lange and by
+[Fiat-Crypto](https://github.com/mit-plv/fiat-crypto) in Coq: clear
+denominators, and show that the resulting polynomial identity holds modulo
+the curve equations. That last step is ideal membership. Because the
+formulas are homogeneous, every point reduces to a canonical representative,
+and there the curve equation becomes a rewrite rule (on Ed25519,
+*u<sup>2</sup>v<sup>2</sup> → (v<sup>2</sup> − u<sup>2</sup> − 1)/d*). The
+rules form a Gröbner basis, so rewriting decides membership. If the
+difference of the two sides reduces to zero, the identity holds.
+
+**A small verified computer algebra system.** The original plan was to
+close these identities with F\*'s ring-normalization tactic. But they are
+far too large for that, or for an SMT solver. P-256 associativity is about
+26,000 monomials before reduction. So the agent wrote one:
+`Spec.Group.Poly` represents polynomials as lists of monomials, implements
+addition, multiplication, and reduction as ordinary functions, and proves
+that each one commutes with evaluation modulo the prime. Running it with
+F\*'s normalizer is a proof by reflection: if the computed result is the
+empty polynomial, the identity holds over the field. Formulas are
+transcribed over a type that pairs each polynomial with the field element
+it denotes, so the transcription can't drift from the spec.
+
+**Where the computer algebra certificates come in.** Associativity is pure
+computation, but other facts need a *search*, which is a job for an
+external computer algebra system (CAS). F\* never trusts the CAS. It only
+checks the certificates the CAS produces:
+
+* **Completeness** (the addition formulas never divide by zero) needs
+  polynomial cofactors showing that a denominator lies in a certain ideal.
+  [Singular](https://www.singular.uni-kl.de/)'s `lift` computes them. On
+  Ed25519 the argument also uses the fact that *d* is not a square, which
+  F\* checks by computing Euler's criterion.
+* **No roots.** On the two Weierstrass curves, completeness depends on
+  certain polynomials having no root in the field. For example, a root of
+  *x<sup>3</sup> − 3x + b* would be a point of order two on P-256. The
+  certificate is a polynomial *u* with *u (x<sup>p</sup> − x) ≡ 1* modulo
+  the polynomial, which rules out a root by Fermat's little theorem.
+  [PARI/GP](https://pari.math.u-bordeaux.fr/) computes *u*, and F\* checks
+  the product.
+* **Primality.** The proofs need the field primes to be prime, and ECDSA
+  needs the group orders to be prime. PARI/GP builds recursive Pocklington
+  certificates, and a verified checker in F\* validates them.
+
+Python generators turn the CAS output into F\* modules, and every
+[generator](https://github.com/FStarLang/hacl-pulse/tree/master/spec/group-gen)
+reproduces its committed module byte-for-byte. On top of the group laws,
+`Spec.Group.Smul` proves the scalar-multiplication facts a window needs
+once, over an abstract commutative group, and instantiates them per curve.
+That's not just tidier. A goal over an abstract predicate takes
+milliseconds of Z3 time, while the same goal over 78-digit field equations
+takes minutes. In total this is about 10,000 lines, and it's what made the
+fixed-base windows on all three curves possible.
+
+The idea of an untrusted CAS paired with a trusted checker is an old one
+(Harrison and Théry's
+["skeptic's approach"](https://doi.org/10.1023/A:1006023127567) to combining
+HOL and Maple). What's new is the cost. Nobody built an interface between
+F\* and Singular or PARI/GP. The agent wrote the scripts, ran them, read
+the output, and wrote the generators.
 
 ## Performance
 
@@ -223,6 +295,31 @@ small, named, tested places: the timing of a handful of secret-indexed
 routines, a short list of axiomatized intrinsics, and the specs. Everything
 else can be optimized as aggressively as the proofs allow.
 
+## Where hacl-pulse goes beyond HACL\*
+
+* **New algorithms.** ML-KEM (FIPS 203) and ML-DSA (FIPS 204) in all three
+  parameter sets each, which HACL\* doesn't have. HPKE in all four modes
+  with all three AEADs, where HACL\* ships only Base mode over
+  ChaCha20-Poly1305. A portable, constant-time AES-GCM, where HACL\* has only
+  Vale assembly.
+* **New theorems.** The group laws for all three curves, primality of the
+  field primes and group orders, and correctness theorems for every AEAD,
+  key exchange, signature scheme, and KEM. Some of these facts appear in
+  HACL\*, but unproved: its AEAD `correctness` lemma, the primality of the
+  P-256 prime, and the group laws are all `admit()`.
+* **Safety enforced by types.** Wiping secret scratch memory is checked by
+  Pulse's resource discipline, secret integers have no non-constant-time
+  operations, no stack frame is sized by caller input, and lengths are
+  `size_t`.
+* **Speed.** 16 of 26 benchmarks beat HACL\*'s best configuration,
+  including Salsa20 and secretbox (0.24x), SHA-512, SHA-3, and SHAKE (about
+  0.55x), RSA-PSS verification (0.44x), and all of P-256 (0.64x to 0.76x).
+  On secp256k1 signing, hacl-pulse is about 4x faster than any library we
+  measured.
+* **No assembly.** Every fast path is verified Pulse over a small set of
+  tested C intrinsics, so there's no separate assembly-verification
+  toolchain to maintain.
+
 ## Where hacl-pulse still falls short of HACL\*
 
 Parity is about algorithms. On most other things that make a library usable
@@ -321,18 +418,13 @@ match. Now a newcomer with a better design can catch up rapidly. **Now is the
 time to design new languages. The libraries come for free!**
 
 **Agents connect proof assistants to computer algebra without
-infrastructure.** The group-law proofs rely on certificates from computer
-algebra systems. [Singular](https://www.singular.uni-kl.de/) computes the
-polynomial cofactors for the completeness identities, and
-[PARI/GP](https://pari.math.u-bordeaux.fr/) produces Pocklington primality
-certificates and no-roots checks. F\* trusts none of it and re-checks every
-certificate with its verified normalizer. Connecting a computer algebra
-system to a proof assistant used to be a research project in its own right
-(see, for example, [*A bi-directional extensible interface between Lean and
-Mathematica*](https://arxiv.org/abs/2101.07758)). Here the agent just wrote
-the Singular and PARI/GP scripts, ran them, and turned the output into F\*
-modules. No infrastructure was needed, and the same approach works in any
-proof assistant.
+infrastructure.** Connecting a computer algebra system to a proof assistant
+used to be a research project in its own right (see, for example, [*A
+bi-directional extensible interface between Lean and
+Mathematica*](https://arxiv.org/abs/2101.07758)). For the group laws, the
+agent simply wrote Singular and PARI/GP scripts, ran them, and turned their
+output into certificates that F\* checks. No infrastructure was needed, and
+the same approach works in any proof assistant.
 
 ## Try it
 
