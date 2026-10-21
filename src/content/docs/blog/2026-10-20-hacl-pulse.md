@@ -71,8 +71,9 @@ selected at run time.
 hacl-pulse departs from HACL\*'s design in five places (details in the
 [README](https://github.com/FStarLang/hacl-pulse#the-five-design-commitments)):
 
-1. **Secret integers are types, not an index.** Each secret width is its own
-   abstract type whose interface exposes only constant-time operations: no
+1. **Secret integers are types, not an index.** The idea comes from HACL\*'s
+   secret integers; hacl-pulse makes each secret width its own abstract
+   type, whose interface exposes only constant-time operations: no
    comparison, no division, no branching. Declassification goes through a
    single module, so auditing where secrets become public is a search for one
    name. In C these are plain `uint32_t` and friends.
@@ -81,7 +82,8 @@ hacl-pulse departs from HACL\*'s design in five places (details in the
    into `uint32_t` and `uint64_t` copies with no indirection. Algorithms are
    parameter records, so SHA-224/256/384/512 become four specialized C
    functions with their constants as literals.
-3. **`size_t`, not 32-bit lengths.** No length is ever truncated.
+3. **`size_t`, not 32-bit lengths.** Buffers larger than 4 GiB work
+   without chunking.
 4. **No assembly.** The trusted C is small and explicit: the entropy shim,
    the vector intrinsics, a 64-bit add-with-carry, and memory wiping.
 5. **Scratch memory is wiped, and the type system enforces it.** Every stack
@@ -307,10 +309,9 @@ else can be optimized as aggressively as the proofs allow.
   key exchange, signature scheme, and KEM. Some of these facts appear in
   HACL\*, but unproved: its AEAD `correctness` lemma, the primality of the
   P-256 prime, and the group laws are all `admit()`.
-* **Safety enforced by types.** Wiping secret scratch memory is checked by
-  Pulse's resource discipline, secret integers have no non-constant-time
-  operations, no stack frame is sized by caller input, and lengths are
-  `size_t`.
+* **Verified memory wiping.** Every secret stack buffer must be wiped
+  before the function returns, and Pulse's resource discipline checks it: a
+  forgotten wipe is a type error.
 * **Speed.** 16 of 26 benchmarks beat HACL\*'s best configuration,
   including Salsa20 and secretbox (0.24x), SHA-512, SHA-3, and SHAKE (about
   0.55x), RSA-PSS verification (0.44x), and all of P-256 (0.64x to 0.76x).
