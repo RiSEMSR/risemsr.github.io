@@ -18,9 +18,20 @@ const dafnyGrammar = JSON.parse(
   fs.readFileSync(new URL('./src/grammars/dafny.tmLanguage.json', import.meta.url), 'utf-8')
 );
 
+// Blog posts for the sidebar, newest first (file names start with YYYY-MM-DD).
+const blogPosts = fs
+	.readdirSync(new URL('./src/content/docs/blog/', import.meta.url))
+	.filter((f) => /^\d{4}-\d{2}-\d{2}.*\.mdx?$/.test(f))
+	.map((f) => 'blog/' + f.replace(/\.mdx?$/, ''))
+	.sort()
+	.reverse();
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://risemsr.github.io',
+	redirects: {
+		'/blog/0000-welcome': '/',
+	},
 	markdown: {
 		shikiConfig: {
 			langs: [
@@ -59,7 +70,7 @@ export default defineConfig({
 			sidebar: [
 				{
 					label: 'Blog',
-					items: [{ autogenerate: { directory: 'blog' } }],
+					items: ['blog', ...blogPosts],
 				},
 			],
 		}),
