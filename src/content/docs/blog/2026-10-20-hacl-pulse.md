@@ -15,7 +15,7 @@ author: Gabriel Ebner
 > (though not yet its platforms, bindings, or agile EverCrypt layer), and adds
 > ML-KEM, ML-DSA, and HPKE in all four modes. It proves correctness theorems
 > about the specs themselves, including the elliptic-curve group laws that
-> HACL\* admits. Every primitive runs within 1.32x of HACL\*'s best
+> HACL\* admits. Every primitive runs within 1.30x of HACL\*'s best
 > configuration, and 16 run faster. It took about six weeks, and nearly all
 > of it was written by AI agents running Claude Opus 5 and Opus 5.5.
 
@@ -45,7 +45,7 @@ feature, hacl-pulse uses the feature.
 ## What's in the box
 
 All of the following are specified, implemented, verified, extracted to C,
-and tested against published vectors (34 C test harnesses):
+and tested against published vectors (44 C test harnesses):
 
 * **Hashes:** SHA-1, SHA-2, SHA-3/SHAKE, BLAKE2s/b, and MD5, one-shot and
   incremental.
@@ -60,16 +60,17 @@ and tested against published vectors (34 C test harnesses):
   **ML-DSA** (all three parameter sets each).
 * **HPKE** (RFC 9180) in all four modes with all three AEADs.
 
-That's about 157,000 lines of F\* and Pulse (57K of specification, 94K of
-implementation and proof), extracted to a single 56K-line `Hacl.c`. There is
-no assembly. Hardware fast paths (AES-NI, PCLMULQDQ, the SHA extensions,
+That's about 160,000 lines of F\* and Pulse (57K of specification, 98K of
+implementation and proof), extracted to a single `Hacl.c` and `Hacl.h`. There
+is no assembly. Hardware fast paths (AES-NI, PCLMULQDQ, the SHA extensions,
 AVX2, and AVX-512) are C intrinsics behind narrow, axiomatized interfaces,
-selected at run time.
+selected at run time. On other architectures the same `Hacl.c` compiles to
+the portable code alone, and CI tests it on aarch64.
 
 ## Modernizing the design
 
 hacl-pulse departs from HACL\*'s design in five places (details in the
-[README](https://github.com/FStarLang/hacl-pulse#the-five-design-commitments)):
+[design notes](https://github.com/FStarLang/hacl-pulse/blob/master/design/notes.md#the-five-design-commitments)):
 
 1. **Secret integers are types, not an index.** The idea comes from HACL\*'s
    secret integers; hacl-pulse makes each secret width its own abstract
@@ -200,19 +201,24 @@ performance got as much attention as proofs. We compare against **HACL\*
 configured for the machine and allowed everything it has**: Vale assembly,
 AVX2, and BMI2/ADX. On an AMD EPYC (Zen 3) with gcc 15:
 
-* **16 of 26 benchmarks beat HACL\*'s best, and all are within 1.32x.**
+* **16 of 26 benchmarks beat HACL\*'s best, and all are within 1.30x.**
 * Salsa20 and secretbox run at 0.24x of HACL\*'s time (HACL\* has no vector
-  Salsa20), SHA-512, SHA-3, and SHAKE at about 0.55x, and RSA-PSS
-  verification at 0.44x.
-* P-256 runs at 0.64x to 0.76x across the board, thanks to a field
+  Salsa20), SHA-512, SHA-3, and SHAKE at about 0.54x, and RSA-PSS
+  verification at 0.43x.
+* P-256 runs at 0.47x to 0.57x across the board, thanks to a field
   specialized to its prime and a four-base-point fixed-base table.
 * The slowest rows are X25519 and Ed25519 signing (about 1.3x, against
   HACL\*'s BMI2/ADX assembly) and MD5. Under clang, X25519 matches HACL\*.
 
-Against OpenSSL, AWS-LC, libsodium, libjade, Firedancer, and dalek,
-hacl-pulse is fastest at secp256k1 signing (about 4x ahead), and most
-primitives are within 1.1x to 1.4x of the fastest library. The largest gaps
-are SHA-512 and bignum modexp, about 2x behind hand-tuned assembly.
+HACL\* has no ML-KEM, so there we report absolute numbers: ML-KEM-768
+encapsulation takes 59 µs, using AVX2 for the NTT and a four-way Keccak.
+
+Against OpenSSL, AWS-LC, libsodium, libjade, Firedancer, and dalek, the
+symmetric primitives and X25519 are within 1.4x of the fastest library.
+The gaps that remain are where the leaders have assembly or vector backends
+that hacl-pulse hasn't written yet: RSA, FFDHE, and SHA-512 at about 2x,
+P-256 and Ed25519 at 2.2x to 3.9x, ML-KEM and ML-DSA at 3.2x to 3.8x of
+AWS-LC, and SHA-1 (no SHA extensions yet) at 6x.
 
 ## Verification makes optimization safe
 
@@ -228,7 +234,7 @@ multiply must compute multiplication modulo 2^255 - 19, whether it uses five
 51-bit limbs or four 64-bit ones. If the change verifies, it's correct, and
 nothing above it needs re-examining.
 
-That changed what we were willing to try. The roughly 70 parts of
+That changed what we were willing to try. The 82 parts of
 [`bench/REPORT.md`](https://github.com/FStarLang/hacl-pulse/blob/master/bench/REPORT.md)
 record each optimization (the motivating measurement, the experiment, and
 the result), and many are changes you'd normally make only with great care:
@@ -274,7 +280,7 @@ barrier, `Hacl.Launder.launder`: an identity function wrapping the mask in
 an empty inline `asm` the optimizer can't see through. The spread dropped to
 1.2%, and `tests/test_consttime.c` and `tests/test_launder.c` fail if it
 returns
-([full story](https://github.com/FStarLang/hacl-pulse#the-compiler-is-allowed-to-undo-a-constant-time-algorithm)).
+([full story](https://github.com/FStarLang/hacl-pulse/blob/master/design/notes.md#the-compiler-is-allowed-to-undo-a-constant-time-algorithm)).
 
 **Hardware intrinsics enlarge the trusted computing base.** The vector
 backends and the 64-bit add-with-carry are described to F\* by `assume val`
@@ -314,9 +320,7 @@ else can be optimized as aggressively as the proofs allow.
   forgotten wipe is a type error.
 * **Speed.** 16 of 26 benchmarks beat HACL\*'s best configuration,
   including Salsa20 and secretbox (0.24x), SHA-512, SHA-3, and SHAKE (about
-  0.55x), RSA-PSS verification (0.44x), and all of P-256 (0.64x to 0.76x).
-  On secp256k1 signing, hacl-pulse is about 4x faster than any library we
-  measured.
+  0.54x), RSA-PSS verification (0.43x), and all of P-256 (0.47x to 0.57x).
 * **No assembly.** Every fast path is verified Pulse over a small set of
   tested C intrinsics, so there's no separate assembly-verification
   toolchain to maintain.
@@ -326,10 +330,10 @@ else can be optimized as aggressively as the proofs allow.
 Parity is about algorithms. On most other things that make a library usable
 in practice, HACL\* is still well ahead.
 
-* **x86-64 only.** The generated C has unconditional x86 target attributes
-  (`"bmi2"`, `"avx2"`, ...) and uses `unsigned __int128`, so it builds only
-  for 64-bit x86 with GCC or Clang: no ARM or NEON, no 32-bit, no MSVC.
-  HACL\* supports all of those.
+* **Fewer platforms.** The fast paths are x86-64 only. The C builds and
+  passes its tests on aarch64, but runs only portable code there (no NEON).
+  It also uses `unsigned __int128`, so it needs a 64-bit target and GCC or
+  Clang: no 32-bit, no MSVC. HACL\* supports all of those.
 * **No agile layer.** There's no EverCrypt-style provider for choosing an
   algorithm at run time behind one state type. This is deliberate, since
   dispatch (AES-NI or portable AES, say) happens inside each algorithm. But a
@@ -344,7 +348,7 @@ in practice, HACL\* is still well ahead.
   ownership, and error conventions. A few HACL\* surfaces have no counterpart
   yet: streaming Poly1305, BLAKE2 salt and personalization, and the
   fixed-width `Bignum256`/`Bignum4096` and `GenericField` APIs.
-* **One amalgamated file.** `dist/` is a single 2.5 MB `Hacl.c`. HACL\* ships
+* **One amalgamated file.** `dist/` is a single, large `Hacl.c`. HACL\* ships
   one file per algorithm, so embedders can take only what they need.
 * **Assembly-level curve performance.** X25519 and Ed25519 signing are about
   1.3x behind HACL\*'s BMI2/ADX assembly under gcc, and bignum about 2x
@@ -353,15 +357,15 @@ in practice, HACL\* is still well ahead.
   stable releases. hacl-pulse is six weeks old, unaudited, tracks F\*
   `master`, and has been checked with only one F\* and Z3 toolchain.
 
-Most of these are engineering rather than research. Portable and ARM
-backends, Rust extraction, and per-algorithm distribution are all on the
+Most of these are engineering rather than research. ARM vector backends,
+Rust extraction, and per-algorithm distribution are all on the
 table. But today hacl-pulse is a demonstration of what a modern verified
 crypto library can look like, not a production replacement for HACL\*.
 
 ## How it was built
 
 hacl-pulse went from an empty repository to feature parity in about six
-weeks and 400 commits. Almost all of the specifications, code, and proofs
+weeks and about 410 commits. Almost all of the specifications, code, and proofs
 were written by AI agents running Claude Opus 5 and, later, Opus 5.5,
 following the workflow from our [AutoCLRS](/blog/2026-03-06-autoclrs) and
 [agentic PoP](/blog/2026-02-04-nik-agentic-pop) posts. Humans set the
@@ -373,8 +377,8 @@ verifier, the published test vectors, and the benchmark harness.
 
 * **The design documents paid off.** They gave the agents a stable target
   and gave us a checklist for parity.
-* **Proof engineering knowledge accumulates.** The README's
-  ["Proof engineering notes"](https://github.com/FStarLang/hacl-pulse#proof-engineering-notes)
+* **Proof engineering knowledge accumulates.** The design notes'
+  ["Proof engineering notes"](https://github.com/FStarLang/hacl-pulse/blob/master/design/notes.md#proof-engineering-notes)
   record 72 lessons, each written down after it cost real time. One example
   is "a product of two variables under a quantifier poisons the whole SMT
   query." F\* discharges proofs with the Z3 solver, which handles linear
@@ -430,13 +434,16 @@ the same approach works in any proof assistant.
 ## Try it
 
 ```
-make FSTAR_ROOT=/path/to/fstar-nightly   # verify, extract, compile, test
+make -j$(nproc) FSTAR_ROOT=/path/to/fstar   # lint, verify, extract, compile, test
 ```
 
 You need a recent F\* [nightly](https://github.com/FStarLang/FStar-nightly/releases)
-with Pulse. If you just want the C, it's in `dist/`. The remaining
+with Pulse and Custard. Verification takes about half an
+hour on 24 cores. If you just want the C, each CI run publishes the
+extracted `dist/` as an artifact, and `make DIST_ONLY=1 test` builds and
+tests it without F\*. hacl-pulse is licensed under Apache 2.0. The remaining
 performance work is in the
-[roadmap](https://github.com/FStarLang/hacl-pulse#roadmap), and we're
+[roadmap](https://github.com/FStarLang/hacl-pulse/blob/master/design/notes.md#roadmap), and we're
 considering an agile API and probabilistic failure bounds for the lattice
 KEMs. We'd love feedback, especially from HACL\* users: what would it take
 for you to switch?
