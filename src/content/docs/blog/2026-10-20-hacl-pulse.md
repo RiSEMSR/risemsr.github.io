@@ -15,7 +15,7 @@ author: Gabriel Ebner
 > (though not yet its platforms, bindings, or agile EverCrypt layer), and adds
 > ML-KEM, ML-DSA, and HPKE in all four modes. It proves correctness theorems
 > about the specs themselves, including the elliptic-curve group laws that
-> HACL\* admits. Every primitive runs within 1.30x of HACL\*'s best
+> HACL\* admits. Every primitive runs within 1.32x of HACL\*'s best
 > configuration, and 16 run faster. It took about six weeks, and nearly all
 > of it was written by AI agents running Claude Opus 5 and Opus 5.5.
 
@@ -60,7 +60,7 @@ and tested against published vectors (44 C test harnesses):
   **ML-DSA** (all three parameter sets each).
 * **HPKE** (RFC 9180) in all four modes with all three AEADs.
 
-That's about 160,000 lines of F\* and Pulse (57K of specification, 98K of
+That's about 164,000 lines of F\* and Pulse (57K of specification, 101K of
 implementation and proof), extracted to a single `Hacl.c` and `Hacl.h`. There
 is no assembly. Hardware fast paths (AES-NI, PCLMULQDQ, the SHA extensions,
 AVX2, and AVX-512) are C intrinsics behind narrow, axiomatized interfaces,
@@ -201,24 +201,27 @@ performance got as much attention as proofs. We compare against **HACL\*
 configured for the machine and allowed everything it has**: Vale assembly,
 AVX2, and BMI2/ADX. On an AMD EPYC (Zen 3) with gcc 15:
 
-* **16 of 26 benchmarks beat HACL\*'s best, and all are within 1.30x.**
+* **16 of 26 benchmarks beat HACL\*'s best, and all are within 1.32x.**
 * Salsa20 and secretbox run at 0.24x of HACL\*'s time (HACL\* has no vector
-  Salsa20), SHA-512, SHA-3, and SHAKE at about 0.54x, and RSA-PSS
+  Salsa20), SHA-512, SHA-3, and SHAKE at about 0.5x, and RSA-PSS
   verification at 0.43x.
 * P-256 runs at 0.47x to 0.57x across the board, thanks to a field
   specialized to its prime and a four-base-point fixed-base table.
 * The slowest rows are X25519 and Ed25519 signing (about 1.3x, against
   HACL\*'s BMI2/ADX assembly) and MD5. Under clang, X25519 matches HACL\*.
 
-HACL\* has no ML-KEM, so there we report absolute numbers: ML-KEM-768
-encapsulation takes 59 µs, using AVX2 for the NTT and a four-way Keccak.
+HACL\* has no ML-KEM or ML-DSA, so we compare them with other libraries.
+Both use AVX2 and a four-way Keccak. ML-KEM-768 encapsulation
+takes 22 µs (1.5x of AWS-LC). ML-DSA is about 1.8x to 2.1x of the fastest
+implementation (mldsa-native or the pq-crystals AVX2 build), 2x to 3x
+faster than the pq-crystals reference, and faster still than OpenSSL.
 
 Against OpenSSL, AWS-LC, libsodium, libjade, Firedancer, and dalek, the
 symmetric primitives and X25519 are within 1.4x of the fastest library.
 The gaps that remain are where the leaders have assembly or vector backends
-that hacl-pulse hasn't written yet: RSA, FFDHE, and SHA-512 at about 2x,
-P-256 and Ed25519 at 2.2x to 3.9x, ML-KEM and ML-DSA at 3.2x to 3.8x of
-AWS-LC, and SHA-1 (no SHA extensions yet) at 6x.
+that hacl-pulse hasn't written yet: RSA, FFDHE, and SHA-512 at 1.7x to 2x,
+P-256 and Ed25519 at 2.3x to 3.9x, and SHA-1 (no SHA extensions yet) at
+6x.
 
 ## Verification makes optimization safe
 
@@ -234,7 +237,7 @@ multiply must compute multiplication modulo 2^255 - 19, whether it uses five
 51-bit limbs or four 64-bit ones. If the change verifies, it's correct, and
 nothing above it needs re-examining.
 
-That changed what we were willing to try. The 82 parts of
+That changed what we were willing to try. The 86 parts of
 [`bench/REPORT.md`](https://github.com/FStarLang/hacl-pulse/blob/master/bench/REPORT.md)
 record each optimization (the motivating measurement, the experiment, and
 the result), and many are changes you'd normally make only with great care:
@@ -320,7 +323,7 @@ else can be optimized as aggressively as the proofs allow.
   forgotten wipe is a type error.
 * **Speed.** 16 of 26 benchmarks beat HACL\*'s best configuration,
   including Salsa20 and secretbox (0.24x), SHA-512, SHA-3, and SHAKE (about
-  0.54x), RSA-PSS verification (0.43x), and all of P-256 (0.47x to 0.57x).
+  0.5x), RSA-PSS verification (0.43x), and all of P-256 (0.47x to 0.57x).
 * **No assembly.** Every fast path is verified Pulse over a small set of
   tested C intrinsics, so there's no separate assembly-verification
   toolchain to maintain.
@@ -365,7 +368,7 @@ crypto library can look like, not a production replacement for HACL\*.
 ## How it was built
 
 hacl-pulse went from an empty repository to feature parity in about six
-weeks and about 410 commits. Almost all of the specifications, code, and proofs
+weeks and about 420 commits. Almost all of the specifications, code, and proofs
 were written by AI agents running Claude Opus 5 and, later, Opus 5.5,
 following the workflow from our [AutoCLRS](/blog/2026-03-06-autoclrs) and
 [agentic PoP](/blog/2026-02-04-nik-agentic-pop) posts. Humans set the
