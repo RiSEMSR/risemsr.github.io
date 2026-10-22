@@ -1,0 +1,61 @@
+---
+import { getBlogPosts, postDate } from '../utils/posts';
+
+interface Props {
+  /** Maximum number of posts to show (default: all). */
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+const all = await getBlogPosts();
+const posts = limit === undefined ? all : all.slice(0, limit);
+---
+
+<ul class="post-list not-content">
+  {
+    posts.map((post) => (
+      <li>
+        <h3>
+          <a href={`/${post.id}/`}>{post.data.title}</a>
+        </h3>
+        <p class="post-meta">
+          {[post.data.author, postDate(post)].filter(Boolean).join(' · ')}
+        </p>
+        {post.data.description && <p class="post-abstract">{post.data.description}</p>}
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+  }
+  .post-list li {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--sl-color-hairline);
+  }
+  .post-list h3 {
+    font-size: var(--sl-text-h4);
+    font-weight: 600;
+    line-height: var(--sl-line-height-headings);
+    margin: 0;
+  }
+  .post-list h3 a {
+    color: var(--sl-color-white);
+    text-decoration: none;
+  }
+  .post-list h3 a:hover {
+    color: var(--sl-color-text-accent);
+  }
+  .post-meta {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+    margin: 0.25rem 0 0;
+  }
+  .post-abstract {
+    margin: 0.5rem 0 0;
+  }
+</style>

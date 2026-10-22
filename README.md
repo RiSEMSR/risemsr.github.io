@@ -15,17 +15,19 @@ Learn more on the [RiSE webpage](https://www.microsoft.com/en-us/research/group/
 ├── public/
 ├── src/
 │   ├── assets/
+│   ├── components/
+│   │   └── PostList.astro   # Post list (title, author, abstract)
 │   ├── content/
 │   │   └── docs/
-│   │       ├── blog/        # Blog posts
-│   │       └── index.mdx    # Home page
+│   │       ├── blog/        # Blog posts (+ index.mdx: list of all posts)
+│   │       └── index.mdx    # Home page (welcome + latest posts)
 │   └── content/config.ts
 ├── astro.config.mjs
 ├── package.json
 └── tsconfig.json
 ```
 
-Blog posts are `.md` or `.mdx` files in `src/content/docs/blog/`. Each file is exposed as a route based on its file name.
+Blog posts are `.md` or `.mdx` files in `src/content/docs/blog/`. Each file is exposed as a route based on its file name, which must start with the publication date (`YYYY-MM-DD-`). Set `title`, `author` and `description` (the abstract shown on the home page) in the frontmatter.
 
 ## 🧞 Commands
 
