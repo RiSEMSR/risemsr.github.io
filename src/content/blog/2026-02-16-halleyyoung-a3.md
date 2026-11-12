@@ -1,13 +1,11 @@
 ---
 title: How to train your program verifier
 description: Development of a symbolic program analysis engine from prompts to functioning system
-author: Halley Young
+author: [Halley Young, Nikolaj Bjørner]
 ---
 
-* Author: Halley Young, Nikolaj Bj&oslash;rner
 
-
-![Dragon Training](../../../assets/slop-feedback-loop/cute-robot-dragon.jpg)
+![Dragon Training](../../assets/slop-feedback-loop/cute-robot-dragon.jpg)
 
 What if you asked your favorite AI agent:
 
@@ -89,7 +87,7 @@ The theory was refined, the code was refined, and the surviving result is what s
 A3 identifies bugs across a set of pre-defined categories. If the code uses assertions it
 will attempt to establish that they hold on all code-paths, but general purpose verification is not the main use case for a3-python.
 
-![Bug taxonomy coverage](../../../assets/slop-feedback-loop/bug-taxonomy.png)
+![Bug taxonomy coverage](../../assets/slop-feedback-loop/bug-taxonomy.png)
 
 
 ## Querying for confluences
@@ -132,7 +130,7 @@ program verification is to synthesize a barrier certificate `B(s)`, where `s` ar
 
 The idea can be illustrated visually:
 
-![Barrier intuition](../../../assets/slop-feedback-loop/barrier-theory.png)
+![Barrier intuition](../../assets/slop-feedback-loop/barrier-theory.png)
 
 Our favorite LLM model (we used variants of GPT-5, Claude, noticing a phase shift in capabilities of Claude Opus by the end of October)
 determined that barriers should be expressed using polynomials
@@ -168,7 +166,7 @@ The agentic loop now focused on committing to execution details:
 At a high-level the generated code implemented an architecture integrating symbolic execution and concolic oracles.
 More about oracles later.
 
-![System architecture overview](../../../assets/slop-feedback-loop/system-architecture-overview.png)
+![System architecture overview](../../assets/slop-feedback-loop/system-architecture-overview.png)
 
 Thus, a3-python was created automatically using copilot through a loop that comprised of five stages:
 (1) AI theorizing to identify cross-domain analogies, (2) coding, (3) testing based on synthetic suites and large repos, (4) code fixes and
@@ -236,7 +234,7 @@ we pivoted and asked copilot to examine relevant CAV literature, and it identifi
 - [Compositional assume-guarantee reasoning for interprocedural scaling](https://ptolemy.berkeley.edu/projects/embedded/Alumni/shaz/ag.html)
 
 
-![Layer feedback architecture](../../../assets/slop-feedback-loop/layer-feedback-architecture.png)
+![Layer feedback architecture](../../assets/slop-feedback-loop/layer-feedback-architecture.png)
 
 
 ## Concolic and Axiomatic Oracles

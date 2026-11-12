@@ -1,0 +1,35 @@
+---
+import { authorUrl } from '../utils/posts';
+
+interface Props {
+  authors: string[];
+  /** Show at most this many names, then "and N others". */
+  max?: number;
+}
+const { authors, max = Infinity } = Astro.props;
+const shown = authors.length > max ? authors.slice(0, max) : authors;
+const others = authors.length - shown.length;
+const n = shown.length + (others > 0 ? 1 : 0);
+const sep = (i: number) => (i === 0 ? '' : n === 2 ? ' and ' : i === n - 1 ? ', and ' : ', ');
+---
+
+<span class="author-names">
+  {shown.map((name, i) => (
+    <Fragment>{sep(i)}<a href={authorUrl(name)}>{name}</a></Fragment>
+  ))}
+  {others > 0 && <Fragment>{sep(shown.length)}{others} others</Fragment>}
+</span>
+
+<style>
+  a {
+    position: relative;
+    z-index: 1;
+    color: inherit;
+    text-decoration: none;
+  }
+  a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

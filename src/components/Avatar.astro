@@ -1,0 +1,35 @@
+---
+interface Props {
+  name: string;
+  size?: number;
+}
+const { name, size = 28 } = Astro.props;
+const words = name.split(/\s+/).filter(Boolean);
+const initials = (words.length > 1 ? [words[0], words.at(-1)!] : words).map((w) => w[0]).join('');
+let hash = 0;
+for (const ch of name) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+const hue = hash % 360;
+---
+
+<span
+  class="avatar"
+  aria-hidden="true"
+  style={`--size:${size}px;--hue:${hue}`}
+>{initials}</span>
+
+<style>
+  .avatar {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 999px;
+    background: hsl(var(--hue) 30% 45%);
+    color: #fff;
+    box-shadow: 0 0 0 2px var(--avatar-ring, var(--bg));
+    font-size: calc(var(--size) * 0.4);
+    font-weight: 650;
+    letter-spacing: 0.02em;
+  }
+</style>

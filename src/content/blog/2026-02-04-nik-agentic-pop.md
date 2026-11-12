@@ -2,11 +2,9 @@
 title: Agentic Proof-Oriented Programming
 description: Exploring AI-assisted proof-oriented programming with Copilot CLI and F*.
 author: Nik Swamy
+thanks: [Lef Ioannidis, Matthai Philipose, Alex Lavaee, Jana Kulkarni, many others]
 ---
 
-* Author: Nik Swamy, with thanks to Lef Ioannidis, Matthai Philipose, Alex
-  Lavaee, Jana Kulkarni, and many others
- 
 Can AI assist in building programs with formal proofs of correctness? Researchers in
 MSR and elsewhere have been working on this research goal for a few years
 ([1](https://arxiv.org/abs/2405.01787), [2](https://arxiv.org/abs/2404.10362),
@@ -111,7 +109,7 @@ Here's a [codespace](https://github.com/FStarLang/pulse-sandbox) that reproduces
 my setup in a VM---so you can try it out yourself in your browser. You'll need
 to click on "Code" then "Codespaces" to launch a codespace.
 
-![Pulse Sandbox Codespace](../../../assets/pulse-sandbox-codespace.jpg)
+![Pulse Sandbox Codespace](../../assets/pulse-sandbox-codespace.jpg)
 
 The agent descriptions I used are also available there. I actually started with
 much simpler descriptions and then after interacting with the agents for a

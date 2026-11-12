@@ -1,61 +1,106 @@
 ---
-import { getBlogPosts, postDate } from '../utils/posts';
+import PostMeta from './PostMeta.astro';
+import { postDate, postUrl, type Post } from '../utils/posts';
 
 interface Props {
-  /** Maximum number of posts to show (default: all). */
-  limit?: number;
+  posts: Post[];
 }
-
-const { limit } = Astro.props;
-const all = await getBlogPosts();
-const posts = limit === undefined ? all : all.slice(0, limit);
+const { posts } = Astro.props;
+const byYear = new Map<string, Post[]>();
+for (const post of posts) {
+  const year = postDate(post)!.slice(0, 4);
+  byYear.set(year, [...(byYear.get(year) ?? []), post]);
+}
 ---
 
-<ul class="post-list not-content">
-  {
-    posts.map((post) => (
-      <li>
-        <h3>
-          <a href={`/${post.id}/`}>{post.data.title}</a>
-        </h3>
-        <p class="post-meta">
-          {[post.data.author, postDate(post)].filter(Boolean).join(' · ')}
-        </p>
-        {post.data.description && <p class="post-abstract">{post.data.description}</p>}
-      </li>
-    ))
-  }
-</ul>
+{
+  [...byYear].map(([year, yearPosts]) => (
+    <section class="year">
+      <h2>{year}</h2>
+      <ol>
+        {yearPosts.map((post) => (
+          <li>
+            <a class="row" href={postUrl(post)}>
+              <h3>{post.data.title}</h3>
+              {post.data.description && <p>{post.data.description}</p>}
+            </a>
+            <PostMeta post={post} avatarSize={20} />
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))
+}
 
 <style>
-  .post-list {
-    list-style: none;
-    padding: 0;
-    margin-top: 1.5rem;
+  .year {
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+    gap: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    margin-top: 2rem;
   }
-  .post-list li {
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--sl-color-hairline);
-  }
-  .post-list h3 {
-    font-size: var(--sl-text-h4);
-    font-weight: 600;
-    line-height: var(--sl-line-height-headings);
+  .year h2 {
     margin: 0;
+    padding-top: 1.25rem;
+    line-height: 1.62rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-subtle);
+    font-variant-numeric: tabular-nums;
   }
-  .post-list h3 a {
-    color: var(--sl-color-white);
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+  li {
+    position: relative;
+    padding: 1.25rem 1.5rem;
+    margin-inline: -1.5rem;
+    border-radius: var(--radius);
+    transition: background-color 0.15s;
+  }
+  li:hover,
+  li:focus-within {
+    background: var(--surface);
+  }
+  .row {
+    display: block;
+    color: inherit;
     text-decoration: none;
+    margin-bottom: 0.75rem;
   }
-  .post-list h3 a:hover {
-    color: var(--sl-color-text-accent);
+  .row::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
   }
-  .post-meta {
-    font-size: var(--sl-text-sm);
-    color: var(--sl-color-gray-3);
-    margin: 0.25rem 0 0;
+  h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.2rem;
+    font-weight: 650;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
   }
-  .post-abstract {
-    margin: 0.5rem 0 0;
+  li:hover h3 {
+    color: var(--accent);
+  }
+  .row p {
+    margin: 0;
+    color: var(--text-muted);
+    max-width: 65ch;
+  }
+  @media (max-width: 40rem) {
+    .year {
+      grid-template-columns: 1fr;
+    }
+    .year h2 {
+      padding-top: 0;
+    }
   }
 </style>

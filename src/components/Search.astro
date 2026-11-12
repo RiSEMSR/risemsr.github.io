@@ -1,0 +1,188 @@
+<button id="search-open" class="search-button" type="button" aria-label="Search" title="Search (Ctrl+K)">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path>
+  </svg>
+  <span class="label">Search</span>
+  <kbd class="label">Ctrl K</kbd>
+</button>
+
+<dialog id="search-dialog" aria-label="Search">
+  <div class="dialog-inner">
+    <div class="dialog-header">
+      <span>Search posts</span>
+      <button id="search-close" class="icon-button" type="button" aria-label="Close search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div id="search-ui"></div>
+  </div>
+</dialog>
+
+<style>
+  .search-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.25rem;
+    padding: 0 0.6rem 0 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .search-button:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  kbd {
+    padding: 0.05rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 0;
+    background: var(--surface);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+  }
+  @media (max-width: 48rem) {
+    .search-button {
+      width: 2.25rem;
+      padding: 0;
+      justify-content: center;
+      border-color: transparent;
+      background: transparent;
+    }
+    .label {
+      display: none;
+    }
+  }
+
+  dialog {
+    width: min(42rem, calc(100vw - 2rem));
+    max-height: calc(100vh - 8rem);
+    margin: 5rem auto auto;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    color: var(--text);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  }
+  dialog::backdrop {
+    background: rgba(5, 7, 12, 0.55);
+    backdrop-filter: blur(4px);
+  }
+  .dialog-inner {
+    padding: 1rem 1.25rem 1.25rem;
+  }
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+  }
+
+  #search-ui {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: var(--accent);
+    --pagefind-ui-text: var(--text);
+    --pagefind-ui-background: var(--bg-elevated);
+    --pagefind-ui-border: var(--border-strong);
+    --pagefind-ui-tag: var(--surface);
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: 0;
+    --pagefind-ui-font: var(--font-sans);
+  }
+  #search-ui :global(.pagefind-ui__result-link) {
+    color: var(--text);
+  }
+  #search-ui :global(.pagefind-ui__result-excerpt),
+  #search-ui :global(.pagefind-ui__message) {
+    color: var(--text-muted);
+  }
+  #search-ui :global(mark) {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-radius: 0;
+  }
+  #search-ui :global(.pagefind-ui__search-input) {
+    font-weight: 500;
+  }
+  #search-ui :global(.pagefind-ui__search-clear) {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+  }
+  #search-ui :global(.pagefind-ui__search-clear:hover) {
+    color: var(--text);
+  }
+  #search-ui :global(.pagefind-ui__result-thumb) {
+    display: none;
+  }
+  .unavailable {
+    margin: 0;
+    color: var(--text-muted);
+  }
+</style>
+
+<script>
+  const dialog = document.getElementById('search-dialog') as HTMLDialogElement;
+  const container = document.getElementById('search-ui')!;
+  let loaded = false;
+
+  function loadAsset(tag: 'script' | 'link', url: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const el = document.createElement(tag);
+      if (el instanceof HTMLScriptElement) el.src = url;
+      else Object.assign(el, { rel: 'stylesheet', href: url });
+      el.onload = () => resolve();
+      el.onerror = () => reject(new Error(`Failed to load ${url}`));
+      document.head.append(el);
+    });
+  }
+
+  async function initSearch() {
+    if (loaded) return;
+    loaded = true;
+    try {
+      await Promise.all([
+        loadAsset('link', '/pagefind/pagefind-ui.css'),
+        loadAsset('script', '/pagefind/pagefind-ui.js'),
+      ]);
+      // @ts-expect-error PagefindUI is a global from pagefind-ui.js
+      new PagefindUI({ element: container, showImages: false, showSubResults: true, resetStyles: false });
+    } catch {
+      container.innerHTML =
+        '<p class="unavailable">Search is only available in production builds (<code>npm run build &amp;&amp; npm run preview</code>).</p>';
+    }
+  }
+
+  async function open() {
+    dialog.showModal();
+    await initSearch();
+    container.querySelector('input')?.focus();
+  }
+
+  document.getElementById('search-open')!.addEventListener('click', open);
+  document.getElementById('search-close')!.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', (e) => {
+    if (e.target === dialog) dialog.close();
+  });
+  addEventListener('keydown', (e) => {
+    const typing = e.target instanceof HTMLElement && e.target.closest('input, textarea, [contenteditable]');
+    if ((e.key === 'k' && (e.ctrlKey || e.metaKey)) || (e.key === '/' && !typing)) {
+      e.preventDefault();
+      if (!dialog.open) open();
+    }
+  });
+</script>

@@ -1,30 +1,19 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
+import expressiveCode from 'astro-expressive-code';
+import sitemap from '@astrojs/sitemap';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
-import { createRequire } from 'module';
 import fs from 'fs';
 
-const require = createRequire(import.meta.url);
-
 // Load custom language grammars
-const fstarGrammar = JSON.parse(
-  fs.readFileSync(new URL('./src/grammars/fstar.tmLanguage.json', import.meta.url), 'utf-8')
-);
-const pulseGrammar = JSON.parse(
-  fs.readFileSync(new URL('./src/grammars/pulse.tmLanguage.json', import.meta.url), 'utf-8')
-);
-const dafnyGrammar = JSON.parse(
-  fs.readFileSync(new URL('./src/grammars/dafny.tmLanguage.json', import.meta.url), 'utf-8')
-);
+const loadGrammar = (/** @type {string} */ file) =>
+	JSON.parse(fs.readFileSync(new URL(`./src/grammars/${file}`, import.meta.url), 'utf-8'));
 
-// Blog posts for the sidebar, newest first (file names start with YYYY-MM-DD).
-const blogPosts = fs
-	.readdirSync(new URL('./src/content/docs/blog/', import.meta.url))
-	.filter((f) => /^\d{4}-\d{2}-\d{2}.*\.mdx?$/.test(f))
-	.map((f) => 'blog/' + f.replace(/\.mdx?$/, ''))
-	.sort()
-	.reverse();
+const langs = [
+	{ ...loadGrammar('fstar.tmLanguage.json'), name: 'fstar', aliases: ['fst', 'fsti', 'f*'] },
+	{ ...loadGrammar('pulse.tmLanguage.json'), name: 'pulse', aliases: [] },
+	{ ...loadGrammar('dafny.tmLanguage.json'), name: 'dafny', aliases: ['dfy'] },
+];
 
 // https://astro.build/config
 export default defineConfig({
@@ -33,46 +22,26 @@ export default defineConfig({
 		'/blog/0000-welcome': '/',
 	},
 	markdown: {
-		shikiConfig: {
-			langs: [
-				{
-					...fstarGrammar,
-					name: 'fstar',
-					aliases: ['fst', 'fsti', 'f*'],
-				},
-				{
-					...pulseGrammar,
-					name: 'pulse',
-					aliases: [],
-				},
-				{
-					...dafnyGrammar,
-					name: 'dafny',
-					aliases: ['dfy'],
-				},
-			],
-		},
+		shikiConfig: { langs },
 	},
 	integrations: [
-		starlight({
-			title: 'RiSE MSR',
-			description: 'News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group.',
-			expressiveCode: {
-				plugins: [pluginLineNumbers()],
-				defaultProps: {
-					showLineNumbers: false,
-				},
+		expressiveCode({
+			themes: ['github-dark-dimmed', 'github-light'],
+			// Follow the site's light/dark toggle (data-theme on <html>).
+			themeCssSelector: (theme) => `[data-theme='${theme.type}']`,
+			useDarkModeMediaQuery: false,
+			shiki: { langs },
+			plugins: [pluginLineNumbers()],
+			defaultProps: {
+				showLineNumbers: false,
 			},
-			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/risemsr' },
-				{ icon: 'rss', label: 'RSS', href: '/rss.xml' },
-			],
-			sidebar: [
-				{
-					label: 'Blog',
-					items: ['blog', ...blogPosts],
-				},
-			],
+			styleOverrides: {
+				borderRadius: '0',
+				codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace",
+				codeFontSize: '0.875rem',
+				uiFontFamily: "'Inter Variable', system-ui, sans-serif",
+			},
 		}),
+		sitemap(),
 	],
 });

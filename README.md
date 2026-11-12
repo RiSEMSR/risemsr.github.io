@@ -1,7 +1,5 @@
 # RiSE MSR Blog
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
-
 https://risemsr.github.io/
 
 News from the RiSE MSR team! This blog covers research, new developments, technical discussions, and the work of the RiSE MSR group. 
@@ -14,20 +12,31 @@ Learn more on the [RiSE webpage](https://www.microsoft.com/en-us/research/group/
 .
 ├── public/
 ├── src/
-│   ├── assets/
-│   ├── components/
-│   │   └── PostList.astro   # Post list (title, author, abstract)
+│   ├── assets/              # Images used in posts
+│   ├── components/          # Header, footer, post cards, table of contents, ...
 │   ├── content/
-│   │   └── docs/
-│   │       ├── blog/        # Blog posts (+ index.mdx: list of all posts)
-│   │       └── index.mdx    # Home page (welcome + latest posts)
-│   └── content/config.ts
+│   │   └── blog/            # Blog posts
+│   ├── grammars/            # Syntax highlighting for F*, Pulse, Dafny
+│   ├── layouts/
+│   │   └── BaseLayout.astro # Page shell (head, header, footer, theme)
+│   ├── pages/
+│   │   ├── index.astro      # Home page (hero + latest posts)
+│   │   ├── blog/index.astro # Archive of all posts
+│   │   ├── blog/[...slug].astro # Post page
+│   │   ├── authors/         # Author index and per-author post lists
+│   │   └── rss.xml.ts
+│   ├── styles/global.css    # Design tokens (light/dark) and article typography
+│   └── content.config.ts
 ├── astro.config.mjs
 ├── package.json
 └── tsconfig.json
 ```
 
-Blog posts are `.md` or `.mdx` files in `src/content/docs/blog/`. Each file is exposed as a route based on its file name, which must start with the publication date (`YYYY-MM-DD-`). Set `title`, `author` and `description` (the abstract shown on the home page) in the frontmatter.
+Blog posts are `.md` or `.mdx` files in `src/content/blog/`. Each file is exposed as `/blog/<file name>/`; the file name must start with the publication date (`YYYY-MM-DD-`). Set `title`, `author` and `description` (the abstract shown on the home page) in the frontmatter. `author` can be a single name or a list (`author: [Ada Lovelace, Alan Turing]`); acknowledgments go in an optional `thanks` list. Don't repeat the authors in the post body. Each author gets a page at `/authors/<name>/`, so spell names consistently across posts. Reference images in `src/assets/` with relative paths, e.g. `![Alt](../../assets/foo.png)`.
+
+Search is provided by [Pagefind](https://pagefind.app/), which indexes the built site after `astro build` (so it only works with `npm run build && npm run preview`, not `npm run dev`).
+
+Code blocks are rendered with [Expressive Code](https://expressive-code.com/); add `showLineNumbers` after the language to number lines.
 
 ## 🧞 Commands
 
@@ -35,7 +44,7 @@ Blog posts are `.md` or `.mdx` files in `src/content/docs/blog/`. Each file is e
 | :---------------- | :------------------------------------------ |
 | `npm install`     | Installs dependencies                       |
 | `npm run dev`     | Starts local dev server at `localhost:4321` |
-| `npm run build`   | Build your production site to `./dist/`     |
+| `npm run build`   | Build the site and search index to `./dist/` |
 | `npm run preview` | Preview your build locally                  |
 
 ## 🚢 Publishing
@@ -53,4 +62,4 @@ Commit to the staging repo only; commits made directly to the public repo will m
 
 ## 👀 Want to learn more?
 
-Check out [Starlight's docs](https://starlight.astro.build/) or [Astro documentation](https://docs.astro.build).
+Check out the [Astro documentation](https://docs.astro.build) and the [Expressive Code documentation](https://expressive-code.com/).

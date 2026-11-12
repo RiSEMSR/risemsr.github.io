@@ -1,0 +1,65 @@
+---
+import { INTERNSHIP_URL } from '../consts';
+---
+
+<aside class="banner" aria-label="Announcement">
+  <a class="container" href={INTERNSHIP_URL}>
+    <span class="tag">Hiring</span>
+    <span>
+      <span class="long">We're looking for research interns.</span>
+      <span class="short">We're hiring research interns!</span>{' '}
+      <span class="cta">Apply now →</span>
+    </span>
+  </a>
+</aside>
+
+<style>
+  .banner {
+    position: relative;
+    z-index: 51;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.875rem;
+  }
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding-block: 0.55rem;
+    color: var(--text);
+    text-align: center;
+    text-decoration: none;
+  }
+  .tag {
+    flex: none;
+    padding: 0.1rem 0.55rem;
+    border-radius: 0;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .cta {
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  .short {
+    display: none;
+  }
+  @media (max-width: 48rem) {
+    .long {
+      display: none;
+    }
+    .short {
+      display: inline;
+    }
+  }
+  a:hover .cta {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>

@@ -1,0 +1,102 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import PostList from '../components/PostList.astro';
+import { getBlogPosts } from '../utils/posts';
+import { RISE_URL } from '../consts';
+
+const posts = await getBlogPosts();
+const [featured, ...rest] = posts;
+const recent = rest.slice(0, 10);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container">
+      <h1>
+        Notes on programming,{' '}<br />
+        <span class="highlight">proofs, and AI agents</span>
+      </h1>
+      <p class="lead">
+        <a href={RISE_URL}>RiSE</a> is a group of researchers and engineers working on the systems and
+        foundations of programming: formal methods, high-performance computing, programming languages,
+        and software engineering. This is where we share our research, thoughts, and ideas, less
+        formally than in our papers.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    {
+      featured && (
+        <section class="featured" aria-label="Latest post">
+          <PostCard post={featured} featured />
+        </section>
+      )
+    }
+
+    {
+      recent.length > 0 && (
+        <section class="recent" aria-label="Recent posts">
+          <PostList posts={recent} />
+          <a class="all-posts" href="/blog/">View all {posts.length} posts →</a>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: clamp(4rem, 10vw, 7rem) 0 clamp(3rem, 6vw, 4.5rem);
+    overflow: hidden;
+  }
+  h1 {
+    margin: 0 0 1.25rem;
+    font-size: clamp(2.4rem, 6vw, 4.25rem);
+    font-weight: 750;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+  @media (max-width: 36rem) {
+    h1 br {
+      display: none;
+    }
+  }
+  .lead {
+    max-width: 44rem;
+    margin: 0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+  .lead a {
+    color: var(--text);
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .recent {
+    margin-top: 2.5rem;
+  }
+  .recent :global(.year:first-child) {
+    border-top: none;
+    padding-top: 0;
+  }
+  .all-posts {
+    display: inline-block;
+    margin: 1.5rem 0 0 7rem;
+    font-weight: 550;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .all-posts:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 40rem) {
+    .all-posts {
+      margin-left: 0;
+    }
+  }
+</style>

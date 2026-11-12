@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { getBlogPosts } from '../../utils/posts';
+
+const posts = await getBlogPosts();
+---
+
+<BaseLayout title="All posts" description="All posts on the RiSE MSR blog, newest first.">
+  <div class="container">
+    <header class="page-header">
+      <span class="eyebrow">Archive</span>
+      <h1>All posts</h1>
+      <p>{posts.length} posts from the RiSE group at Microsoft Research, newest first.</p>
+    </header>
+
+    <PostList posts={posts} />
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: 4rem 0 2rem;
+    max-width: 44rem;
+  }
+  h1 {
+    margin: 0.5rem 0 0.75rem;
+    font-size: clamp(2.2rem, 5vw, 3.25rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .page-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+</style>
