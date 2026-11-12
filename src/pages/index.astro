@@ -37,12 +37,9 @@ const recent = rest.slice(0, 10);
 
     {
       recent.length > 0 && (
-        <section class="recent">
-          <div class="section-header">
-            <h2>Recent posts</h2>
-            <a href="/blog/">View all {posts.length} posts →</a>
-          </div>
+        <section class="recent" aria-label="Recent posts">
           <PostList posts={recent} />
+          <a class="all-posts" href="/blog/">View all {posts.length} posts →</a>
         </section>
       )
     }
@@ -80,28 +77,22 @@ const recent = rest.slice(0, 10);
   }
 
   .recent {
-    margin-top: 4.5rem;
+    margin-top: 2.5rem;
   }
-  .section-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-  .section-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-  }
-  .section-header a {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-muted);
+  .all-posts {
+    display: inline-block;
+    margin: 1.5rem 0 0 7rem;
+    font-weight: 550;
+    color: var(--accent);
     text-decoration: none;
   }
-  .section-header a:hover {
-    color: var(--accent);
+  .all-posts:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 40rem) {
+    .all-posts {
+      margin-left: 0;
+    }
   }
 </style>
