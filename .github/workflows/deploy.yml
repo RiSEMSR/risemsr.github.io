@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   build:
+    # Only deploy from the public repo; the private staging repo publishes via publish.yml.
+    if: github.repository == 'RiSEMSR/risemsr.github.io'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

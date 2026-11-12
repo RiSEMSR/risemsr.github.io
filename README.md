@@ -38,6 +38,19 @@ Blog posts are `.md` or `.mdx` files in `src/content/docs/blog/`. Each file is e
 | `npm run build`   | Build your production site to `./dist/`     |
 | `npm run preview` | Preview your build locally                  |
 
+## 🚢 Publishing
+
+[RiSEMSR/risemsr-blog](https://github.com/RiSEMSR/risemsr-blog) is the private staging repo. Every push to its `main` branch is pushed to the public [RiSEMSR/risemsr.github.io](https://github.com/RiSEMSR/risemsr.github.io) by `.github/workflows/publish.yml`, where `.github/workflows/deploy.yml` builds and deploys GitHub Pages.
+
+One-time setup:
+
+1. `ssh-keygen -t ed25519 -N "" -f deploy_key -C risemsr-blog-publish`
+2. In risemsr.github.io → Settings → Deploy keys, add `deploy_key.pub` with **write access**.
+3. In risemsr-blog → Settings → Secrets and variables → Actions, add `deploy_key` as secret `PUBLIC_REPO_DEPLOY_KEY`.
+4. Delete the local key files.
+
+Commit to the staging repo only; commits made directly to the public repo will make the push fail (non-fast-forward).
+
 ## 👀 Want to learn more?
 
 Check out [Starlight's docs](https://starlight.astro.build/) or [Astro documentation](https://docs.astro.build).

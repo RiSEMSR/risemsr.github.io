@@ -1,0 +1,41 @@
+name: Publish to risemsr.github.io
+
+# Pushes main from the private staging repo (RiSEMSR/risemsr-blog) to the
+# public repo (RiSEMSR/risemsr.github.io), whose deploy.yml then builds Pages.
+#
+# Requires the secret PUBLIC_REPO_DEPLOY_KEY: the private half of an SSH
+# deploy key added with write access to RiSEMSR/risemsr.github.io.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.repository == 'RiSEMSR/risemsr-blog'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push main to public repo
+        env:
+          DEPLOY_KEY: ${{ secrets.PUBLIC_REPO_DEPLOY_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes"
+          git push git@github.com:RiSEMSR/risemsr.github.io.git "${GITHUB_SHA}:refs/heads/main"
