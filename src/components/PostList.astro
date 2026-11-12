@@ -43,6 +43,8 @@ for (const post of posts) {
   }
   .year h2 {
     margin: 0;
+    padding-top: 1.25rem;
+    line-height: 1.62rem;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-subtle);
@@ -96,6 +98,9 @@ for (const post of posts) {
   @media (max-width: 40rem) {
     .year {
       grid-template-columns: 1fr;
+    }
+    .year h2 {
+      padding-top: 0;
     }
   }
 </style>

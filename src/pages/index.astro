@@ -79,6 +79,10 @@ const recent = rest.slice(0, 10);
   .recent {
     margin-top: 2.5rem;
   }
+  .recent :global(.year:first-child) {
+    border-top: none;
+    padding-top: 0;
+  }
   .all-posts {
     display: inline-block;
     margin: 1.5rem 0 0 7rem;
