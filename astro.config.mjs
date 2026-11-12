@@ -36,7 +36,7 @@ export default defineConfig({
 				showLineNumbers: false,
 			},
 			styleOverrides: {
-				borderRadius: '0.75rem',
+				borderRadius: '0',
 				codeFontFamily: "'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace",
 				codeFontSize: '0.875rem',
 				uiFontFamily: "'Inter Variable', system-ui, sans-serif",
