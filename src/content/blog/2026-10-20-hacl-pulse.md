@@ -4,8 +4,6 @@ description: A from-scratch reimplementation of the HACL* verified crypto librar
 author: Gabriel Ebner
 ---
 
-* Author: Gabriel Ebner
-
 > **TL;DR:** [hacl-pulse](https://github.com/FStarLang/hacl-pulse) is a
 > from-scratch reimplementation of the
 > [HACL\*](https://github.com/hacl-star/hacl-star) verified cryptographic

@@ -1,0 +1,73 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Avatar from '../../components/Avatar.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getAuthors, type Post } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const authors = await getAuthors();
+  return authors.map(({ name, slug, posts }) => ({ params: { slug }, props: { name, posts } }));
+}
+
+interface Props {
+  name: string;
+  posts: Post[];
+}
+const { name, posts } = Astro.props;
+---
+
+<BaseLayout title={name} description={`Posts by ${name} on the RiSE MSR blog.`}>
+  <div class="container">
+    <header class="page-header">
+      <a class="back" href="/authors/">← All authors</a>
+      <div class="who">
+        <Avatar name={name} size={72} />
+        <div>
+          <h1>{name}</h1>
+          <p>{posts.length} {posts.length === 1 ? 'post' : 'posts'}</p>
+        </div>
+      </div>
+    </header>
+    <div class="grid">
+      {posts.map((post) => <PostCard post={post} />)}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: 3.5rem 0 2.5rem;
+  }
+  .back {
+    display: inline-block;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .back:hover {
+    color: var(--accent);
+  }
+  .who {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 2.75rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .who p {
+    margin: 0.35rem 0 0;
+    color: var(--text-muted);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+  }
+</style>

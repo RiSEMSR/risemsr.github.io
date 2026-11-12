@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Avatar from '../../components/Avatar.astro';
+import { getAuthors } from '../../utils/posts';
+
+const authors = await getAuthors();
+---
+
+<BaseLayout title="Authors" description="Authors on the RiSE MSR blog.">
+  <div class="container">
+    <header class="page-header">
+      <span class="eyebrow">Authors</span>
+      <h1>Who writes here</h1>
+      <p>Everyone who has written for the blog, alphabetically.</p>
+    </header>
+    <ul class="grid">
+      {
+        authors.map(({ name, slug, posts }) => (
+          <li>
+            <a href={`/authors/${slug}/`}>
+              <Avatar name={name} size={44} />
+              <span>
+                <span class="name">{name}</span>
+                <span class="count">
+                  {posts.length} {posts.length === 1 ? 'post' : 'posts'}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-header {
+    padding: 4rem 0 2rem;
+    max-width: 44rem;
+  }
+  h1 {
+    margin: 0.5rem 0 0.75rem;
+    font-size: clamp(2.2rem, 5vw, 3.25rem);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+  }
+  .page-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+  }
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 1rem;
+  }
+  a {
+    --avatar-ring: var(--bg-elevated);
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  a:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+  .name {
+    display: block;
+    font-weight: 600;
+  }
+  .count {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>

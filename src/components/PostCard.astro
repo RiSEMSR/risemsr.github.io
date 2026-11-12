@@ -1,0 +1,118 @@
+---
+import PostMeta from './PostMeta.astro';
+import { postUrl, type Post } from '../utils/posts';
+
+interface Props {
+  post: Post;
+  featured?: boolean;
+}
+const { post, featured = false } = Astro.props;
+---
+
+<article class:list={['card', { featured }]}>
+  <h3>
+    <a href={postUrl(post)}>{post.data.title}</a>
+  </h3>
+  {post.data.description && <p class="description">{post.data.description}</p>}
+  <div class="footer">
+    <PostMeta post={post} />
+    <span class="arrow" aria-hidden="true">→</span>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-elevated);
+    --avatar-ring: var(--bg-elevated);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .card:hover,
+  .card:focus-within {
+    transform: translateY(-3px);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-hover);
+  }
+  h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 650;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+  h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  /* Make the whole card clickable. */
+  h3 a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  h3 a:focus-visible {
+    outline: none;
+  }
+  .card:has(h3 a:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .description {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .footer {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .arrow {
+    color: var(--text-subtle);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .card:hover .arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .featured {
+    padding: 2.25rem;
+    gap: 1rem;
+  }
+  @media (max-width: 36rem) {
+    .featured {
+      padding: 1.5rem;
+    }
+  }
+  .featured h3 {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    max-width: 40ch;
+  }
+  .featured .description {
+    font-size: 1.05rem;
+    max-width: 70ch;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+  }
+</style>

@@ -1,10 +1,8 @@
 ---
 title: Spotting Specification Gaps with Small Proof-Oriented Tests
 description: Using small proof-oriented tests to identify gaps in specifications
-author: Nik Swamy
+author: [Nik Swamy, Shuvendu K. Lahiri]
 ---
-
-* Author: Nik Swamy and Shuvendu Lahiri
 
 In our last two blog posts, we discussed using [AI agents to author verified
 software libraries at scale](/blog/2026-03-06-autoclrs) and the [importance of
@@ -15,7 +13,7 @@ methodology (that we're calling *small proof-oriented tests*, or SPOTs) to
 identify and automatically fix specification gaps in AutoCLRS, our agentic
 formalization of the CLRS textbook.
 
-![Spotting](../../../assets/Spotlight_AutoCLRS.png)
+![Spotting](../../assets/Spotlight_AutoCLRS.png)
 
 > Note: This image was produced by Copilot from the image in the [previous
   post](/blog/2026-03-06-autoclrs), which in turn uses [Wikipedia's cover image

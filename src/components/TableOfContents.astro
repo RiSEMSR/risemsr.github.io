@@ -1,0 +1,84 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+const headings = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  headings.length > 0 && (
+    <nav class="toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ol>
+        {headings.map((h) => (
+          <li class={`depth-${h.depth}`}>
+            <a href={`#${h.slug}`}>{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}
+
+<style>
+  .toc {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 1px solid var(--border);
+  }
+  li a {
+    display: block;
+    margin-left: -1px;
+    padding: 0.3rem 0 0.3rem 0.9rem;
+    border-left: 2px solid transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .depth-3 a {
+    padding-left: 1.75rem;
+    font-size: 0.8rem;
+  }
+  li a:hover {
+    color: var(--text);
+  }
+  li a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+</style>
+
+<script>
+  const entries = [...document.querySelectorAll<HTMLAnchorElement>('.toc a')]
+    .map((link) => ({ link, target: document.getElementById(decodeURIComponent(link.hash.slice(1))) }))
+    .filter((e): e is { link: HTMLAnchorElement; target: HTMLElement } => e.target !== null);
+
+  function update() {
+    let current = entries[0];
+    for (const e of entries) {
+      if (e.target.getBoundingClientRect().top <= 120) current = e;
+      else break;
+    }
+    for (const e of entries) e.link.classList.toggle('active', e === current);
+  }
+
+  if (entries.length > 0) {
+    addEventListener('scroll', update, { passive: true });
+    update();
+  }
+</script>

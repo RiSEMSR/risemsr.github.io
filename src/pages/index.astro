@@ -1,0 +1,115 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getBlogPosts } from '../utils/posts';
+import { RISE_URL } from '../consts';
+
+const posts = await getBlogPosts();
+const [featured, ...rest] = posts;
+const recent = rest.slice(0, 6);
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container">
+      <h1>
+        Notes on programming,{' '}<br />
+        <span class="highlight">proofs, and AI agents</span>
+      </h1>
+      <p class="lead">
+        <a href={RISE_URL}>RiSE</a> is a group of researchers and engineers working on the systems and
+        foundations of programming: formal methods, high-performance computing, programming languages,
+        and software engineering. This is where we share our research, thoughts, and ideas, less
+        formally than in our papers.
+      </p>
+    </div>
+  </section>
+
+  <div class="container">
+    {
+      featured && (
+        <section class="featured" aria-label="Latest post">
+          <PostCard post={featured} featured />
+        </section>
+      )
+    }
+
+    {
+      recent.length > 0 && (
+        <section class="recent">
+          <div class="section-header">
+            <h2>Recent posts</h2>
+            <a href="/blog/">View all {posts.length} posts →</a>
+          </div>
+          <div class="grid">
+            {recent.map((post) => (
+              <PostCard post={post} />
+            ))}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: clamp(4rem, 10vw, 7rem) 0 clamp(3rem, 6vw, 4.5rem);
+    overflow: hidden;
+  }
+  h1 {
+    margin: 0 0 1.25rem;
+    font-size: clamp(2.4rem, 6vw, 4.25rem);
+    font-weight: 750;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+  @media (max-width: 36rem) {
+    h1 br {
+      display: none;
+    }
+  }
+  .lead {
+    max-width: 44rem;
+    margin: 0;
+    font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+    line-height: 1.65;
+    color: var(--text-muted);
+  }
+  .lead a {
+    color: var(--text);
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .recent {
+    margin-top: 4.5rem;
+  }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .section-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-header a {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+  .section-header a:hover {
+    color: var(--accent);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+  }
+</style>
