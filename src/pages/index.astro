@@ -1,12 +1,13 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import PostList from '../components/PostList.astro';
 import { getBlogPosts } from '../utils/posts';
 import { RISE_URL } from '../consts';
 
 const posts = await getBlogPosts();
 const [featured, ...rest] = posts;
-const recent = rest.slice(0, 6);
+const recent = rest.slice(0, 10);
 ---
 
 <BaseLayout>
@@ -41,11 +42,7 @@ const recent = rest.slice(0, 6);
             <h2>Recent posts</h2>
             <a href="/blog/">View all {posts.length} posts →</a>
           </div>
-          <div class="grid">
-            {recent.map((post) => (
-              <PostCard post={post} />
-            ))}
-          </div>
+          <PostList posts={recent} />
         </section>
       )
     }
@@ -106,10 +103,5 @@ const recent = rest.slice(0, 6);
   }
   .section-header a:hover {
     color: var(--accent);
-  }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
-    gap: 1.25rem;
   }
 </style>
