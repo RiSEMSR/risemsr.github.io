@@ -1,0 +1,27 @@
+---
+import { APPINSIGHTS_CONNECTION_STRING } from '../consts';
+---
+
+{
+  import.meta.env.PROD && (
+    <app-insights data-connection-string={APPINSIGHTS_CONNECTION_STRING} hidden />
+  )
+}
+
+<script>
+  import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+
+  const el = document.querySelector('app-insights');
+  const connectionString = el?.getAttribute('data-connection-string');
+  if (connectionString) {
+    const appInsights = new ApplicationInsights({
+      config: {
+        connectionString,
+        disableCookiesUsage: true,
+        enableAutoRouteTracking: false,
+      },
+    });
+    appInsights.loadAppInsights();
+    appInsights.trackPageView();
+  }
+</script>
