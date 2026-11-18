@@ -1,6 +1,6 @@
 ---
 title: "Neuro-Formal Code Review: Can Proofs Help Enforce Intent at Scale?"
-description: "Neuro-Formal Verification combines agents and formal verifiers to assess code against properties; a prototype code reviewer derives those properties from developer intent."
+description: "Neuro-Formal Verification combines agentic formalization and proof-based reasoning to assess code against properties; a prototype code reviewer derives those properties from developer intent."
 author: Shuvendu K. Lahiri
 ---
 
@@ -9,13 +9,9 @@ Licensed under the MIT License. -->
 
 ## TL;DR
 
-**[Neuro-Formal Verification (NFV)](https://arxiv.org/abs/2608.21516)** is a framework for studying how reliably agents can assess code against a given assertion or property using formal program models and machine-checked proofs.
-It combines *agentic formalization* and *proof-based reasoning*: agents formalize the code, property and environment *in stages*; verifiers generate proofs.
+**[Neuro-Formal Verification (NFV)](https://arxiv.org/abs/2608.21516)** is a framework for studying how reliably agents can assess code against a given property by combining *agentic formalization* and *proof-based reasoning*.
 We are releasing the code, **nfv-micro-bench** dataset and evaluation results in an [open-source repository](https://github.com/microsoft/neuro-formal-verification/).
-
-The repository also contains a prototype **[Neuro-Formal Code Reviewer](https://github.com/microsoft/neuro-formal-verification/blob/dev/workflow/README.md)** built with GitHub Agentic Workflows.
-It uses *[intent formalization](https://arxiv.org/abs/2603.17150)* to derive properties from PR descriptions, issues and discussions, then invokes NFV to seek proofs of verification or refutation.
-It reports assumptions, evidence and optional verified fixes (on the model of the program).
+The repository also contains a prototype **[Neuro-Formal Code Reviewer](https://github.com/microsoft/neuro-formal-verification/blob/dev/workflow/README.md)**, built with GitHub Agentic Workflows, that uses *[intent formalization](https://arxiv.org/abs/2603.17150)* to derive properties from PR descriptions, issues and discussions, then invokes NFV to seek proofs of verification or refutation.
 We are sharing this early-stage research prototype to get feedback from researchers and practicing developers and improve both the prototype and the underlying technique.
 
 ![Intent, code and environment feed into a formal model; a formal verifier works with a proof agent and returns verdicts and evidence to the developer.](../../assets/neuro-formal-code-review/nfv-hero-environment-wrap.png)
