@@ -1,5 +1,5 @@
 ---
-title: "Neuro-Formal Code Review: Can Proofs Help Enforce Developer Intent?"
+title: "Neuro-Formal Code Review: Can Proofs Help Enforce Intent at Scale?"
 description: "Neuro-Formal Verification combines agents and formal verifiers to assess code against properties; a prototype code reviewer derives those properties from developer intent."
 author: Shuvendu K. Lahiri
 ---
