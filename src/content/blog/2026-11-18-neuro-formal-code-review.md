@@ -9,7 +9,7 @@ Licensed under the MIT License. -->
 
 ## TL;DR
 
-**[Neuro-Formal Verification (NFV)](https://arxiv.org/abs/2608.21516)** is a framework for studying how reliably agents can assess code against a given property by combining *agentic formalization* and *proof-based reasoning*.
+**[Neuro-Formal Verification (NFV)](https://arxiv.org/abs/2608.21516)** is a framework for developing techniques and studying how reliably agents can assess code against a given property by combining *agentic formalization* and *proof-based reasoning*.
 We are releasing the code, **nfv-micro-bench** dataset and evaluation results in an [open-source repository](https://github.com/microsoft/neuro-formal-verification/).
 The repository also contains a prototype **[Neuro-Formal Code Reviewer](https://github.com/microsoft/neuro-formal-verification/blob/dev/workflow/README.md)**, built with GitHub Agentic Workflows, that uses *[intent formalization](https://arxiv.org/abs/2603.17150)* to derive properties from PR descriptions, issues and discussions, then invokes NFV to seek proofs of verification or refutation.
 We are sharing this early-stage research prototype to get feedback from researchers and developers and improve both the prototype and the underlying technique.
